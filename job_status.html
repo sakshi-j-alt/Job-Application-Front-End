@@ -71,7 +71,7 @@
       <!-- Main Content -->
       <div class="p-4" style="flex: 1;" id="main-content">
         <h4 class="mb-4">Job Applications</h4>
-        <div id="application-list" class="row gy-3"></div>
+        <div id="application-list" class="container-fluid"></div>
       </div>
     </div>
 
@@ -100,10 +100,6 @@
             companiesRes.json()
           ]);
 
-          console.log("Applications:", applications);
-          console.log("Jobs:", jobs);
-          console.log("Companies:", companies);
-
           const jobMap = Object.fromEntries(jobs.map(job => [job.jobid, job]));
           const companyMap = Object.fromEntries(companies.map(c => [c.compId, c]));
 
@@ -114,36 +110,48 @@
             return;
           }
 
-          applications.forEach(app => {
-            const job = jobMap[app.jobid];
-            if (!job) return;
+          for (let i = 0; i < applications.length; i += 2) {
+            const row = document.createElement("div");
+            row.className = "row g-3";
 
-            const company = companyMap[job.compId];
-            const companyName = company ? company.compName : "Unknown";
+            for (let j = i; j < i + 2 && j < applications.length; j++) {
+              const app = applications[j];
+              const job = jobMap[app.jobid];
+              if (!job) continue;
 
-            let badgeClass = "bg-secondary";
-            if (app.status === "Pending") badgeClass = "bg-warning text-dark";
-            else if (app.status === "Selected") badgeClass = "bg-success";
-            else if (app.status === "Rejected") badgeClass = "bg-danger";
+              const company = companyMap[job.compId];
+              const companyName = company ? company.compName : "Unknown";
 
-            const card = document.createElement("div");
-            card.className = "card p-3 col-12";
+              let badgeClass = "bg-secondary";
+              if (app.status === "Pending") badgeClass = "bg-warning text-dark";
+              else if (app.status === "Selected") badgeClass = "bg-success";
+              else if (app.status === "Rejected") badgeClass = "bg-danger";
 
-            card.innerHTML = `
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h5>${job.title}</h5>
-                  <h6 class="text-muted">${companyName}</h6>
-                  <p><strong>Salary:</strong> ₹${job.salary}</p>
+              const cardCol = document.createElement("div");
+              cardCol.className = "col-md-6";
+
+              const card = document.createElement("div");
+              card.className = "card p-3 shadow-sm";
+
+              card.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h5>${job.title}</h5>
+                    <h6 class="text-muted">${companyName}</h6>
+                    <p><strong>Salary:</strong> ₹${job.salary}</p>
+                  </div>
+                  <div>
+                    <span class="badge ${badgeClass} fs-6">${app.status}</span>
+                  </div>
                 </div>
-                <div>
-                  <span class="badge ${badgeClass} fs-6">${app.status}</span>
-                </div>
-              </div>
-            `;
+              `;
 
-            container.appendChild(card);
-          });
+              cardCol.appendChild(card);
+              row.appendChild(cardCol);
+            }
+
+            container.appendChild(row);
+          }
         } catch (error) {
           container.innerHTML = `<p class="text-danger">Error loading applications. Please try again later.</p>`;
           console.error("Error loading applications:", error);

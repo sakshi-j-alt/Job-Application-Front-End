@@ -5,6 +5,30 @@
       "jobid": 101,
       "userid": 1,
       "status": "Pending"
+    },
+    {
+      "id": 2,
+      "jobid": 102,
+      "userid": 2,
+      "status": "Selected"
+    },
+    {
+      "id": 3,
+      "jobid": 103,
+      "userid": 3,
+      "status": "Rejected"
+    },
+    {
+      "id": 4,
+      "jobid": 104,
+      "userid": 4,
+      "status": "Pending"
+    },
+    {
+      "id": 5,
+      "jobid": 105,
+      "userid": 5,
+      "status": "Pending"
     }
   ],
   "jobs": [
@@ -13,12 +37,116 @@
       "title": "Frontend Developer",
       "salary": 50000,
       "compId": 1
+    },
+    {
+      "jobid": 102,
+      "title": "Backend Developer",
+      "salary": 60000,
+      "compId": 2
+    },
+    {
+      "jobid": 103,
+      "title": "UI/UX Designer",
+      "salary": 45000,
+      "compId": 3
+    },
+    {
+      "jobid": 104,
+      "title": "DevOps Engineer",
+      "salary": 70000,
+      "compId": 1
+    },
+    {
+      "jobid": 105,
+      "title": "Data Scientist",
+      "salary": 80000,
+      "compId": 4
     }
   ],
   "companies": [
     {
       "compId": 1,
       "compName": "Tech Corp"
+    },
+    {
+      "compId": 2,
+      "compName": "Innovate LLC"
+    },
+    {
+      "compId": 3,
+      "compName": "Designify"
+    },
+    {
+      "compId": 4,
+      "compName": "Data Pros"
+    },
+    {
+      "compId": 5,
+      "compName": "Cloud Solutions"
+    }
+  ],
+   "users": [
+  {
+    "id": 1,
+    "name": "Rishi Bhandari",
+    "email": "rishi@example.com",
+    "phone": "1234567890",
+    "address": "Pune, Maharashtra"
+  },
+  {
+    "id": 2,
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "phone": "9876543210",
+    "address": "Mumbai, Maharashtra"
+  },
+  {
+    "id": 3,
+    "name": "Alice Smith",
+    "email": "alice@example.com",
+    "phone": "5551234567",
+    "address": "Bangalore, Karnataka"
+  },
+  {
+    "id": 4,
+    "name": "Bob Johnson",
+    "email": "bob@example.com",
+    "phone": "5559876543",
+    "address": "Chennai, Tamil Nadu"
+  },
+  {
+    "id": 5,
+    "name": "Carol Williams",
+    "email": "carol@example.com",
+    "phone": "5556789123",
+    "address": "Hyderabad, Telangana"
+  }
+],
+  "experience": [
+    {
+      "id": 1,
+      "userId": 1,
+      "company": "ABC Corp",
+      "role": "Software Engineer",
+      "years": 2
+    }
+  ],
+  "qualification": [
+    {
+      "id": 1,
+      "userId": 1,
+      "degree": "B.Tech",
+      "institution": "IIT Bombay",
+      "year": 2022
+    }
+  ],
+  "skill": [
+    {
+      "id": 1,
+      "userId": 1,
+      "name": "Java",
+      "level": "Advanced"
     }
   ]
+
 }
