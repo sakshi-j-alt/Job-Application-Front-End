@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Skill Management</title>
-    <!-- <link href="../css/bootstrap.min.css" rel="stylesheet" /> -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -17,19 +16,15 @@
   <body class="container my-5">
     <h2 class="mb-4">Skill Management</h2>
 
-    <form id="skillForm" class="mb-4">
-      <div class="mb-3">
-        <label for="skillName" class="form-label">Skill Name</label>
-        <select id="skillId" class="form-select" required>
-          <option value="">-- Select Skill --</option>
-        </select>
-        <div class="invalid-feedback">Please select a Skill.</div>
-        <div class="invalid-feedback">At least 2 characters required.</div>
-      </div>
-      <button type="submit" class="btn btn-primary" id="submitBtn">
-        Add Skill
+    <div class="mb-4">
+      <label for="selectSkill" class="form-label">Assign Skill to User</label>
+      <select id="selectSkill" class="form-select mb-2">
+        <option value="">-- Select Skill --</option>
+      </select>
+      <button class="btn btn-success" onclick="addSkillToUser()">
+        Assign Skill
       </button>
-    </form>
+    </div>
 
     <input
       type="text"
@@ -50,21 +45,22 @@
       </thead>
       <tbody id="skillTableBody"></tbody>
     </table>
-    <script src="../js/script.js"></script>
 
     <script>
+      const baseUrl = "http://localhost:8080"; // <-- Replace with your backend URL
+      const userId = 2;
+
       const skillForm = document.getElementById("skillForm");
       const skillNameInput = document.getElementById("skillName");
       const submitBtn = document.getElementById("submitBtn");
       const searchInput = document.getElementById("searchInput");
       const skillTableBody = document.getElementById("skillTableBody");
-
-      // const userId=getUserId();
-      const userId = 2;
+      const selectSkill = document.getElementById("selectSkill");
 
       let allSkills = [];
       let editId = null;
       let sortDirection = 1;
+
       function validateForm() {
         if (skillNameInput.value.trim().length < 2) {
           skillNameInput.classList.add("is-invalid");
@@ -75,36 +71,31 @@
       }
 
       function fetchSkills() {
-        fetch(`${baseUrl}/api/skills/`, {
-          headers: { "Content-Type": "application/json" },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            allSkills = data;
-            renderSkills(data);
-          });
-      }
-
-      function loadSkillOptions() {
         fetch(`${baseUrl}/api/skills`, {
           headers: { "Content-Type": "application/json" },
         })
           .then((res) => res.json())
           .then((data) => {
             allSkills = data;
-            const skillSelect = document.getElementById("skillId");
-            data.forEach((skill) => {
-              skillSelect.innerHTML += `<option value="${skill.skillId}">${skill.name}</option>`;
-            });
+            renderSkills(data);
+            populateSkillDropdown(data);
           });
       }
+
+      function populateSkillDropdown(data) {
+        selectSkill.innerHTML = '<option value="">-- Select Skill --</option>';
+        data.forEach((skill) => {
+          selectSkill.innerHTML += `<option value="${skill.skillId}">${skill.skillName}</option>`;
+        });
+      }
+
       function renderSkills(skills) {
         skillTableBody.innerHTML = "";
         skills.forEach((skill) => {
           const row = document.createElement("tr");
           row.innerHTML = `
             <td>${skill.skillId}</td>
-            <td>${skill.name}</td>
+            <td>${skill.skillName}</td>
             <td>
               <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${skill.skillId}">
                 <i class="bi bi-pencil-square"></i>
@@ -132,7 +123,7 @@
         })
           .then((res) => res.json())
           .then((skill) => {
-            skillNameInput.value = skill.name;
+            skillNameInput.value = skill.skillName;
             editId = skill.skillId;
             submitBtn.textContent = "Update Skill";
           });
@@ -151,7 +142,7 @@
         e.preventDefault();
         if (!validateForm()) return;
 
-        const skill = { name: skillNameInput.value.trim() };
+        const skill = { skillName: skillNameInput.value.trim() };
 
         if (editId) {
           fetch(`${baseUrl}/api/skills/${editId}`, {
@@ -179,7 +170,7 @@
       searchInput.addEventListener("input", () => {
         const searchTerm = searchInput.value.toLowerCase();
         const filtered = allSkills.filter((s) =>
-          s.name.toLowerCase().includes(searchTerm)
+          s.skillName.toLowerCase().includes(searchTerm)
         );
         renderSkills(filtered);
       });
@@ -188,17 +179,17 @@
         .querySelector("th:nth-child(2)")
         .addEventListener("click", () => {
           const sorted = [...allSkills].sort(
-            (a, b) => a.name.localeCompare(b.name) * sortDirection
+            (a, b) => a.skillName.localeCompare(b.skillName) * sortDirection
           );
           sortDirection *= -1;
           renderSkills(sorted);
         });
 
       function addSkillToUser() {
-        const skillId = document.getElementById("selectSkill").value;
+        const skillId = selectSkill.value;
         if (!skillId) return alert("Please select a skill");
 
-        fetch(`${baseUrl}/users/${userId}/addSkill`, {
+        fetch(`${baseUrl}/api/users/${userId}/addSkill`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ skillId: Number(skillId) }),
@@ -210,8 +201,8 @@
           .catch((err) => console.error("Error:", err));
       }
 
+      // Initial load
       fetchSkills();
-      loadSkillOptions();
     </script>
   </body>
 </html>
