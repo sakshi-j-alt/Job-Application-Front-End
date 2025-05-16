@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Job Portal Analytics</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: linear-gradient(120deg, #f4f6f9 60%, #e8eaf6 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .container {
+      max-width: 1100px;
+    }
+    .chart-container {
+      margin: 20px auto;
+      padding: 18px 20px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 20px rgba(44, 62, 80, 0.08);
+      transition: box-shadow 0.2s;
+    }
+    .chart-container:hover {
+      box-shadow: 0 10px 32px rgba(44, 62, 80, 0.14);
+    }
+    h1, h4 {
+      color: #2e3a59;
+    }
+    canvas {
+      width: 100% !important;
+      height: 340px !important;
+    }
+    @media (max-width: 768px) {
+      .chart-container {
+        padding: 12px 5px;
+      }
+      canvas {
+        height: 220px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <h1 class="text-center mb-5 fw-bold">Job Portal Analytics</h1>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="chart-container">
+          <h4 class="text-center mb-3">Applications by Location</h4>
+          <canvas id="locationChart" aria-label="Applications by Location" role="img"></canvas>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="chart-container">
+          <h4 class="text-center mb-3">Jobs by Industry</h4>
+          <canvas id="industryChart" aria-label="Jobs by Industry" role="img"></canvas>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="chart-container">
+          <h4 class="text-center mb-3">Applications by Job Role</h4>
+          <canvas id="roleChart" aria-label="Applications by Job Role" role="img"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Chart 1: Applications by Location
+    new Chart(document.getElementById('locationChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Pune', 'Mumbai', 'Bengaluru', 'Hyderabad', 'Delhi', 'Chennai', 'Kolkata', 'Gurugram'],
+        datasets: [{
+          label: 'Applications',
+          data: [10, 7, 5, 9, 8, 4, 3, 6],
+          backgroundColor: [
+            '#42a5f5', '#66bb6a', '#ffa726', '#ab47bc', '#d32f2f', '#29b6f6', '#ef5350', '#8d6e63'
+          ],
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: { duration: 1200 },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#444', stepSize: 2 }
+          },
+          x: {
+            ticks: { color: '#444' }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: context => ` ${context.parsed.y} Applications`
+            }
+          }
+        }
+      }
+    });
+
+    // Chart 2: Jobs by Industry
+    new Chart(document.getElementById('industryChart'), {
+      type: 'doughnut',
+      data: {
+        labels: [
+          'Design & Creativity', 'UI/UX', 'Sales & Marketing', 'Mobile Applications',
+          'Information Technology', 'Construction', 'Other'
+        ],
+        datasets: [{
+          label: 'Jobs',
+          data: [5, 7, 10, 6, 15, 4, 3],
+          backgroundColor: [
+            '#00bcd4', '#ffb300', '#7e57c2', '#43a047', '#e53935', '#5c6bc0', '#bdbdbd'
+          ],
+          borderWidth: 2,
+          hoverOffset: 10
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: { animateRotate: true, duration: 1400 },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#444', font: { weight: 'bold' } }
+          },
+          tooltip: {
+            callbacks: {
+              label: context => ` ${context.label}: ${context.parsed} Jobs`
+            }
+          }
+        }
+      }
+    });
+
+    // Chart 3: Applications by Job Role
+    new Chart(document.getElementById('roleChart'), {
+      type: 'bar',
+      data: {
+        labels: [
+          'Software Developer', 'Sales', 'Cloud Architect', 'Engineer', 'Site Manager',
+          'HR', 'Intern', 'Data Analyst', 'Manager', 'Other'
+        ],
+        datasets: [{
+          label: 'Applications',
+          data: [12, 8, 6, 10, 4, 5, 7, 9, 3, 2],
+          backgroundColor: [
+            '#26a69a', '#ec407a', '#7e57c2', '#ffa726', '#42a5f5',
+            '#ff7043', '#9ccc65', '#ab47bc', '#789262', '#bdbdbd'
+          ],
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: { duration: 1200 },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#444', stepSize: 2 }
+          },
+          x: {
+            ticks: { color: '#444' }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: context => ` ${context.parsed.y} Applications`
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

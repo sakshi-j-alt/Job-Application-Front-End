@@ -1,0 +1,44 @@
+{
+  "user": [
+    { "userId": 1, "userName": "Sakshi", "email": "sakshi@example.com", "contact": "9999999999", "pass": "1234", "type": "applicant", "address": "Pune" },
+    { "userId": 2, "userName": "Rahul", "email": "rahul@example.com", "contact": "8888888888", "pass": "pass", "type": "applicant", "address": "Mumbai" },
+    { "userId": 3, "userName": "Anjali", "email": "anjali@example.com", "contact": "7777777777", "pass": "hello", "type": "recruiter", "address": "Delhi" }
+  ],
+  "company": [
+    { "compId": 1, "compName": "TechCorp", "domain": "Information technology", "location": "Mumbai", "compEmail": "hr@techcorp.com", "pass": "pass123" },
+    { "compId": 2, "compName": "MarketWiz", "domain": "Sales & Marketing", "location": "Pune", "compEmail": "jobs@marketwiz.com", "pass": "sales123" },
+    { "compId": 3, "compName": "Constructify", "domain": "Construction", "location": "Delhi", "compEmail": "info@constructify.com", "pass": "build123" }
+  ],
+  "job": [
+    { "jobid": 1, "compId": 1, "title": "Software Developer", "salary": "8 LPA", "description": "Develop software", "location": "Pune" },
+    { "jobid": 2, "compId": 1, "title": "Data Analyst", "salary": "6 LPA", "description": "Analyze data", "location": "Delhi" },
+    { "jobid": 3, "compId": 2, "title": "Sales Executive", "salary": "4 LPA", "description": "Sales tasks", "location": "Mumbai" },
+    { "jobid": 4, "compId": 3, "title": "Site Manager", "salary": "7 LPA", "description": "Manage site", "location": "Delhi" },
+    { "jobid": 5, "compId": 2, "title": "Intern", "salary": "10K/month", "description": "Marketing Intern", "location": "Bangalore" }
+  ],
+  "application": [
+    { "appId": 1, "jobid": 1, "appliedDate": "2024-10-01", "status": "Pending", "userId": 1 },
+    { "appId": 2, "jobid": 2, "appliedDate": "2024-10-05", "status": "Approved", "userId": 1 },
+    { "appId": 3, "jobid": 3, "appliedDate": "2024-10-06", "status": "Rejected", "userId": 2 },
+    { "appId": 4, "jobid": 4, "appliedDate": "2024-10-08", "status": "Pending", "userId": 2 },
+    { "appId": 5, "jobid": 5, "appliedDate": "2024-10-10", "status": "Pending", "userId": 1 }
+  ],
+  "experience": [
+    { "expid": 1, "userId": 1, "fromDate": "2020", "toDate": "2022", "compId": 1, "role": "Intern", "url": "http://exp.com/cert" },
+    { "expid": 2, "userId": 2, "fromDate": "2019", "toDate": "2021", "compId": 2, "role": "Sales", "url": "http://exp.com/sales" }
+  ],
+  "qualification": [
+    { "qid": 1, "userId": 1, "fromDate": "2018", "toDate": "2022", "type": "Bachelor", "url": "http://qual.com", "institute": "DY Patil", "degree": "BE IT" },
+    { "qid": 2, "userId": 2, "fromDate": "2017", "toDate": "2021", "type": "Bachelor", "url": "http://qual.com/rahul", "institute": "MIT", "degree": "BBA" }
+  ],
+  "skill": [
+    { "skillid": 1, "skillname": "Java" },
+    { "skillid": 2, "skillname": "Python" },
+    { "skillid": 3, "skillname": "Marketing" }
+  ],
+  "userSkill": [
+    { "userId": 1, "skillid": 1 },
+    { "userId": 1, "skillid": 2 },
+    { "userId": 2, "skillid": 3 }
+  ]
+}
