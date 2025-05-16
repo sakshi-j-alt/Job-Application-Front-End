@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Applicant Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .card { margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
+    .modal-header { background: #f8f9fa;}
+    .modal-footer { justify-content: flex-end;}
+    .section-title { color: #970cc9; font-size: 1.1rem; margin-top: 1rem;}
+    .list-group-item { padding: .5rem 1rem;}
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <h2 class="mb-4 text-center">Applications</h2>
+    <div id="applications-list" class="row">
+      <!-- Cards will be injected here -->
+    </div>
+  </div>
+
+  <!-- Modal for Applicant Details -->
+  <div class="modal fade" id="applicantDetailModal" tabindex="-1" aria-labelledby="applicantDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="applicantDetailModalLabel">Applicant Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="applicant-details">
+          <!-- Dynamic details will be injected here -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-success" id="selectBtn">Selected</button>
+          <button class="btn btn-danger" id="rejectBtn">Rejected</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+    
+    const applications = [
+      {
+        appId: 1,
+        jobid: 101,
+        appliedDate: "2024-05-01",
+        status: "Pending",
+        user: {
+          userId: 1,
+          userName: "Priya Sharma",
+          email: "priya.sharma@email.com",
+          contact: "9876543210",
+          address: "Bangalore, Karnataka",
+          gender: "Female",
+          age: 25,
+          type: "Applicant"
+        },
+        job: {
+          jobid: 101,
+          title: "Frontend Developer",
+          salary: "₹8,00,000",
+          description: "React.js Developer",
+          location: "Bangalore",
+          company: {
+            compId: 10,
+            compName: "TechSoft Pvt Ltd",
+            domain: "IT",
+            location: "Bangalore",
+            compEmail: "hr@techsoft.com"
+          }
+        },
+        experiences: [
+          { expid: 1, fromDate: "2022-01-01", toDate: "2024-01-01", compId: 10, role: "Frontend Dev", companyName: "TechSoft Pvt Ltd" }
+        ],
+        qualifications: [
+          { qid: 1, fromDate: "2018-06-01", toDate: "2022-05-01", type: "Degree", url: "", institute: "IIT Delhi", degree: "B.Tech CSE" }
+        ],
+        skills: [
+          { skillid: 1, skillname: "JavaScript" },
+          { skillid: 2, skillname: "React.js" }
+        ]
+      }
+    ];
+
+    const applicationsList = document.getElementById('applications-list');
+
+    // Render cards (summary)
+    applications.forEach(app => {
+      const cardCol = document.createElement('div');
+      cardCol.className = 'col-md-4';
+      cardCol.innerHTML = `
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">${app.user.userName}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">${app.user.email}</h6>
+            <p class="card-text"><strong>Applied for:</strong> ${app.job.title}</p>
+            <p class="card-text"><strong>Status:</strong> ${app.status}</p>
+            <button class="btn btn-info btn-sm" onclick="viewDetails(${app.appId})">View Detail</button>
+          </div>
+        </div>
+      `;
+      applicationsList.appendChild(cardCol);
+    });
+
+    // Modal logic
+    const applicantDetailModal = new bootstrap.Modal(document.getElementById('applicantDetailModal'));
+    let currentApp = null;
+
+    function viewDetails(appId) {
+      const app = applications.find(a => a.appId === appId);
+      currentApp = app;
+      const details = document.getElementById('applicant-details');
+      details.innerHTML = `
+        <div>
+          <span class="section-title">Personal Information</span>
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Name</dt><dd class="col-sm-8">${app.user.userName}</dd>
+            <dt class="col-sm-4">Email</dt><dd class="col-sm-8">${app.user.email}</dd>
+            <dt class="col-sm-4">Contact</dt><dd class="col-sm-8">${app.user.contact}</dd>
+            <dt class="col-sm-4">Address</dt><dd class="col-sm-8">${app.user.address}</dd>
+            <dt class="col-sm-4">Gender</dt><dd class="col-sm-8">${app.user.gender}</dd>
+            <dt class="col-sm-4">Age</dt><dd class="col-sm-8">${app.user.age}</dd>
+          </dl>
+        </div>
+        <div>
+          <span class="section-title">Application Details</span>
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Applied For</dt><dd class="col-sm-8">${app.job.title}</dd>
+            <dt class="col-sm-4">Company</dt><dd class="col-sm-8">${app.job.company.compName} (${app.job.company.domain})</dd>
+            <dt class="col-sm-4">Location</dt><dd class="col-sm-8">${app.job.location}</dd>
+            <dt class="col-sm-4">Salary</dt><dd class="col-sm-8">${app.job.salary}</dd>
+            <dt class="col-sm-4">Applied Date</dt><dd class="col-sm-8">${app.appliedDate}</dd>
+            <dt class="col-sm-4">Status</dt><dd class="col-sm-8">${app.status}</dd>
+          </dl>
+        </div>
+        <div>
+          <span class="section-title">Skills</span>
+          <ul class="list-group mb-2">
+            ${app.skills.map(skill => `<li class="list-group-item">${skill.skillname}</li>`).join('')}
+          </ul>
+        </div>
+        <div>
+          <span class="section-title">Experience</span>
+          <ul class="list-group mb-2">
+            ${app.experiences.length === 0 ? `<li class="list-group-item">No experience added</li>` :
+              app.experiences.map(exp => `
+                <li class="list-group-item">
+                  <strong>${exp.role}</strong> at ${exp.companyName} <br>
+                  <small>${exp.fromDate} to ${exp.toDate}</small>
+                </li>
+              `).join('')}
+          </ul>
+        </div>
+        <div>
+          <span class="section-title">Qualification</span>
+          <ul class="list-group mb-2">
+            ${app.qualifications.length === 0 ? `<li class="list-group-item">No qualification added</li>` :
+              app.qualifications.map(q => `
+                <li class="list-group-item">
+                  <strong>${q.degree}</strong> (${q.type})<br>
+                  ${q.institute}<br>
+                  <small>${q.fromDate} to ${q.toDate}</small>
+                  ${q.url ? `<br><a href="${q.url}" target="_blank">Certificate</a>` : ""}
+                </li>
+              `).join('')}
+          </ul>
+        </div>
+      `;
+      applicantDetailModal.show();
+    }
+
+    // Button event listeners
+    document.getElementById('selectBtn').onclick = function() {
+      if (currentApp) {
+        alert('Applicant "' + currentApp.user.userName + '" selected.');
+        // Here, send status update to backend if needed
+        applicantDetailModal.hide();
+      }
+    };
+    document.getElementById('rejectBtn').onclick = function() {
+      if (currentApp) {
+        alert('Applicant "' + currentApp.user.userName + '" rejected.');
+        // Here, send status update to backend if needed
+        applicantDetailModal.hide();
+      }
+    };
+    })();
+  </script>
+</body>
+</html>
