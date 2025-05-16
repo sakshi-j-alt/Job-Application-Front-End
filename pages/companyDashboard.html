@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Company Dashboard</title>
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Make the canvas take full width and height of the card body */
+      .card-body canvas {
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain;
+      }
+      /* Ensure card body has relative height to contain canvas */
+      .card-body {
+        position: relative;
+        height: 100%;
+        padding: 1rem;
+      }
+      /* Ensure the card itself has fixed height to control chart size */
+      .card {
+        height: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+      <a class="navbar-brand" href="#">404</a>
+      <div class="ms-auto dropdown">
+        <a
+          class="nav-link dropdown-toggle text-white"
+          href="#"
+          data-bs-toggle="dropdown"
+        >
+          <i class="fa fa-user"></i> Admin
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <a class="dropdown-item" href="#" onclick="companyProfile.html"
+              >Profile</a
+            >
+          </li>
+          <li>
+            <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="d-flex">
+      <!-- Sidebar -->
+      <div
+        class="bg-dark text-white sidebar p-3"
+        style="width: 250px; min-height: 100vh"
+      >
+        <h5 class="text-white mb-3">Navigation</h5>
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a href="companyDashboard.html" class="nav-link text-white">
+              <i class="fa fa-chart-line me-2"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="#"
+              class="nav-link text-white"
+              onclick="loadPage('postJob.html')"
+            >
+              <i class="fa fa-briefcase me-2"></i> Post Jobs
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="#"
+              class="nav-link text-white"
+              onclick="loadPage('viewApplication.html')"
+            >
+              <i class="fa fa-file-alt me-2"></i> View Applications
+            </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a
+              href="#"
+              class="nav-link dropdown-toggle text-white"
+              id="navbarReportDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="fa fa-file-alt me-2"></i> Report
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarReportDropdown">
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  onclick="loadPage('jobWiseApplications.html')"
+                >
+                  Job Wise Applications
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  onclick="loadPage('top5JobsByDomain.html')"
+                >
+                  Top 5 Jobs by Domain
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Main Content -->
+      <div
+        class="p-4"
+        style="flex: 1; height: 100%; display: flex; flex-direction: column"
+        id="main-content"
+      >
+        <!-- Top Row: 3 Cards -->
+        <div style="display: flex; justify-content: space-between; height: 25%">
+          <div
+            class="card"
+            style="width: 33.33%; height: 150px; margin-right: 1%"
+          >
+            <div class="card-body">
+              <h5 class="card-title">Number of Appilications</h5>
+              <p class="card-text" id="applications-count">Loading...</p>
+            </div>
+          </div>
+          <div
+            class="card"
+            style="width: 33.33%; height: 150px; margin-right: 1%"
+          >
+            <div class="card-body">
+              <h5 class="card-title">Number of Jobs Posted</h5>
+              <p class="card-text" id="jobs-count">Loading...</p>
+            </div>
+          </div>
+          <div class="card" style="width: 33.33%; height: 150px">
+            <div class="card-body">
+              <h5 class="card-title">Number of Male and Female</h5>
+              <p class="card-text" id="gender-count">Loading...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Row: 2 Cards for Charts -->
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            height: 75%;
+          "
+        >
+          <!-- Chart 1: Applications per Job -->
+          <div class="card" style="width: 49%; height: 400px; margin-right: 1%">
+            <div class="card-body">
+              <h5 class="card-title">Applications per Job</h5>
+              <canvas id="applicationsJobChart" height="300"></canvas>
+            </div>
+          </div>
+          <!-- Chart 2: Skill vs Applicants -->
+          <div class="card" style="width: 49%; height: 400px">
+            <div class="card-body">
+              <h5 class="card-title">Skill vs Applicants</h5>
+              <canvas id="skillApplicantsChart" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 footer">
+      &copy; 2025 User Dashboard. All rights reserved.
+    </footer>
+    <script src="../js/script.js"></script>
+    <script src="../https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      fetch(`${baseUrl}/api/applications/count`)
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("applications-count").textContent =
+            data.count;
+        })
+        .catch(() => {
+          document.getElementById("applications-count").textContent = "Error";
+        });
+
+      // Fetch jobs posted count
+      fetch(`${baseUrl}/api/jobs/count`)
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("jobs-count").textContent = data.count;
+        })
+        .catch(() => {
+          document.getElementById("jobs-count").textContent = "Error";
+        });
+
+      // Fetch male/female count
+      fetch(`${baseUrl}/api/applicants/gender-count`)
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById(
+            "gender-count"
+          ).textContent = `Male: ${data.male}, Female: ${data.female}`;
+        })
+        .catch(() => {
+          document.getElementById("gender-count").textContent = "Error";
+        });
+      // Chart 1: Applications per Job
+      fetch(`${baseUrl}/api/charts/applications-per-job`)
+        .then((res) => res.json())
+        .then((data) => {
+          // Assume your backend returns: { labels: [...], counts: [...] }
+          const ctx1 = document
+            .getElementById("applicationsJobChart")
+            .getContext("2d");
+          new Chart(ctx1, {
+            type: "bar",
+            data: {
+              labels: data.labels,
+              datasets: [
+                {
+                  label: "Applications",
+                  data: data.counts,
+                  backgroundColor: [
+                    "rgba(54, 162, 235, 0.7)",
+                    "rgba(255, 99, 132, 0.7)",
+                    "rgba(255, 206, 86, 0.7)",
+                    "rgba(75, 192, 192, 0.7)",
+                  ],
+                  borderColor: [
+                    "rgba(54, 162, 235, 1)",
+                    "rgba(255, 99, 132, 1)",
+                    "rgba(255, 206, 86, 1)",
+                    "rgba(75, 192, 192, 1)",
+                  ],
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                y: { beginAtZero: true },
+              },
+            },
+          });
+        });
+
+      // Chart 2: Skill vs Applicants
+      fetch(`${baseUrl}/api/charts/skill-vs-applicants`)
+        .then((res) => res.json())
+        .then((data) => {
+          // Assume your backend returns: { labels: [...], counts: [...] }
+          const ctx2 = document
+            .getElementById("skillApplicantsChart")
+            .getContext("2d");
+          new Chart(ctx2, {
+            type: "bar",
+            data: {
+              labels: data.labels,
+              datasets: [
+                {
+                  label: "Applicants",
+                  data: data.counts,
+                  backgroundColor: [
+                    "rgba(255, 99, 132, 0.7)",
+                    "rgba(54, 162, 235, 0.7)",
+                    "rgba(255, 206, 86, 0.7)",
+                    "rgba(75, 192, 192, 0.7)",
+                    "rgba(153, 102, 255, 0.7)",
+                  ],
+                  borderColor: [
+                    "rgba(255, 99, 132, 1)",
+                    "rgba(54, 162, 235, 1)",
+                    "rgba(255, 206, 86, 1)",
+                    "rgba(75, 192, 192, 1)",
+                    "rgba(153, 102, 255, 1)",
+                  ],
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                y: { beginAtZero: true },
+              },
+            },
+          });
+        });
+    </script>
+  </body>
+</html>

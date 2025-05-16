@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post a Job</title>
+  <link href="../https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container py-5">
+    <div class="mx-auto form-container">
+      <h2>Post a Job</h2>
+      <form>
+        <div class="mb-3">
+          <label for="companyId" class="form-label">Company ID</label>
+          <input type="text" class="form-control" id="companyId" name="companyid" required />
+        </div>
+        <div class="mb-3">
+          <label for="skillName" class="form-label">Required Skill</label>
+          <input type="text" class="form-control" id="skillName" name="skillname" required />
+        </div>
+        <div class="mb-3">
+          <label for="salary" class="form-label">Salary</label>
+          <input type="text" class="form-control" id="salary" name="salary" required />
+        </div>
+        <div class="mb-3">
+          <label for="jd" class="form-label">Job Description (JD)</label>
+          <textarea class="form-control" id="jd" name="jd" rows="4" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="location" class="form-label">Location</label>
+          <select class="form-select" id="location" name="location" required>
+            <option value="">Select Location</option>
+          </select>
+        </div>
+        <br>
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary">Post Job</button>
+        </div>
+      </form>
+    </div>
+    <br>
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Company ID</th>
+            <th scope="col">Skill Name</th>
+            <th scope="col">Salary</th>
+            <th scope="col">Job Description</th>
+            <th scope="col">Location</th>
+            <th scope="col" class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dynamic content will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+ 
+
+(function () {
+  document.addEventListener("DOMContentLoaded", function() {
+    const locationSelect = document.getElementById('location');
+    const jobsTableBody = document.querySelector('table tbody');
+    const form = document.querySelector('form');
+
+    // Fetch and populate locations
+    function loadLocations() {
+      fetch(`${baseUrl}/api/locations`)
+        .then(res => res.json())
+        .then(locations => {
+          locationSelect.innerHTML = '<option value="">Select Location</option>';
+          locations.forEach(loc => {
+            const opt = document.createElement('option');
+            opt.value = loc;
+            opt.textContent = loc;
+            locationSelect.appendChild(opt);
+          });
+        });
+    }
+
+    // Fetch and render jobs
+    function loadJobs() {
+      fetch(`${baseUrl}/api/jobs`)
+        .then(res => res.json())
+        .then(jobs => {
+          jobsTableBody.innerHTML = '';
+          jobs.forEach((job, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${idx + 1}</td>
+              <td>${job.company ? job.company.companyId : ''}</td>
+              <td>${job.jobTitle}</td>
+              <td>${job.salary}</td>
+              <td>${job.description}</td>
+              <td>${job.jobLocation}</td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-warning btn-edit" data-id="${job.jobId}">Edit</button>
+                <button class="btn btn-sm btn-danger btn-delete" data-id="${job.jobId}">Delete</button>
+              </td>
+            `;
+            jobsTableBody.appendChild(tr);
+          });
+        });
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const data = {
+        company: { companyId: Number(form.companyid.value) }, // nested object, convert to number
+        jobTitle: form.skillname.value, // use skillname input for job title
+        salary: Number(form.salary.value), // convert to number
+        description: form.jd.value,
+        jobLocation: form.location.value
+        // Add postingDate and deadlineDate if you want, e.g.:
+        // postingDate: "2024-05-17",
+        // deadlineDate: "2024-06-01"
+      };
+
+      fetch(`${baseUrl}/api/jobs`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      })
+      .then(() => {
+        form.reset();
+        loadJobs();
+      });
+    });
+
+    // Handle delete actions
+    jobsTableBody.addEventListener('click', function(e) {
+      if (e.target.classList.contains('btn-delete')) {
+        const id = e.target.getAttribute('data-id');
+        if (confirm('Delete this job?')) {
+          fetch(`${baseUrl}/api/jobs/${id}`, {method: 'DELETE'})
+            .then(() => loadJobs());
+        }
+      }
+    });
+
+    // Initial load
+    loadLocations();
+    loadJobs();
+  });
+})();
+
+  </script>
+</body>
+</html>

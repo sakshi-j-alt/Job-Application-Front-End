@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Applicant Details</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .card {
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .modal-header {
+        background: #f8f9fa;
+      }
+      .modal-footer {
+        justify-content: flex-end;
+      }
+      .section-title {
+        color: #970cc9;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+      }
+      .list-group-item {
+        padding: 0.5rem 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container py-5">
+      <h2 class="mb-4 text-center">Applications</h2>
+      <div id="applications-list" class="row">
+        <!-- Cards will be injected here -->
+      </div>
+    </div>
+
+    <!-- Modal for Applicant Details -->
+    <div
+      class="modal fade"
+      id="applicantDetailModal"
+      tabindex="-1"
+      aria-labelledby="applicantDetailModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="applicantDetailModalLabel">
+              Applicant Details
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="applicant-details">
+            <!-- Dynamic details will be injected here -->
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-success" id="selectBtn">Selected</button>
+            <button class="btn btn-danger" id="rejectBtn">Rejected</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let applications = [];
+      const applicationsList = document.getElementById("applications-list");
+
+      function loadApplications() {
+        fetch(`${baseUrl}/api/application`)
+          .then((res) => res.json())
+          .then((data) => {
+            applications = data;
+            renderApplications();
+          })
+          .catch((err) => {
+            applicationsList.innerHTML = `<div class="text-danger text-center">Failed to load applications.</div>`;
+            console.error("Error fetching applications:", err);
+          });
+      }
+
+      function renderApplications() {
+        applicationsList.innerHTML = "";
+        applications.forEach((app) => {
+          const userName =
+            app.user && app.user.userName ? app.user.userName : "N/A";
+          const userEmail = app.user && app.user.email ? app.user.email : "N/A";
+          const jobTitle = app.job && app.job.jobTitle ? app.job.jobTitle : "N/A";
+          const status = app.status || "N/A";
+          const cardCol = document.createElement("div");
+          cardCol.className = "col-md-4";
+          cardCol.innerHTML = `
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">${userName}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">${userEmail}</h6>
+          <p class="card-text"><strong>Applied for:</strong> ${jobTitle}</p>
+          <p class="card-text"><strong>Status:</strong> ${status}</p>
+          <button class="btn btn-info btn-sm" onclick="viewDetails(${app.appId})">View Detail</button>
+        </div>
+      </div>
+    `;
+          applicationsList.appendChild(cardCol);
+        });
+      }
+
+      // Modal logic (same as before)
+      const applicantDetailModal = new bootstrap.Modal(
+        document.getElementById("applicantDetailModal")
+      );
+      let currentApp = null;
+
+      window.viewDetails = function (appId) {
+        const app = applications.find((a) => a.appId === appId);
+        currentApp = app;
+        const details = document.getElementById("applicant-details");
+        // ... rest of your modal rendering code ...
+        applicantDetailModal.show();
+      };
+
+      document.getElementById("selectBtn").onclick = function () {
+        if (currentApp) updateStatus(currentApp.appId, "Selected");
+      };
+      document.getElementById("rejectBtn").onclick = function () {
+        if (currentApp) updateStatus(currentApp.appId, "Rejected");
+      };
+
+      function updateStatus(appId, status) {
+        fetch(`${baseUrl}/api/application/${appId}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to update status");
+            alert(`Applicant status updated to "${status}".`);
+            applicantDetailModal.hide();
+            loadApplications();
+          })
+          .catch((err) => {
+            alert("Error updating status.");
+            console.error(err);
+          });
+      }
+
+      // Initial load
+      loadApplications();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skill Management</title>
+    <link
+      href="../css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="container my-5">
+    <h2 class="mb-4">Skill Management</h2>
+
+    <div class="mb-4">
+      <label for="selectSkill" class="form-label">Assign Skill to User</label>
+      <select id="selectSkill" class="form-select mb-2">
+        <option value="">-- Select Skill --</option>
+      </select>
+      <button class="btn btn-success" onclick="addSkillToUser()">
+        Assign Skill
+      </button>
+    </div>
+
+    <input
+      type="text"
+      placeholder="Search by Skill Name..."
+      class="form-control mb-3"
+      id="searchInput"
+    />
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th style="cursor: pointer">
+            Skill Name <i class="bi bi-arrow-down-up"></i>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="skillTableBody"></tbody>
+    </table>
+
+    <script>
+      const baseUrl = "http://localhost:8080"; // <-- Replace with your backend URL
+      // const userId=getUserId();
+      const userId = 2;
+
+      const searchInput = document.getElementById("searchInput");
+      const skillTableBody = document.getElementById("skillTableBody");
+      const selectSkill = document.getElementById("selectSkill");
+
+      let allSkills = [];
+      let sortDirection = 1;
+
+      function fetchSkills() {
+        fetch(`${baseUrl}/api/skills`, {
+          headers: { "Content-Type": "application/json" },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            allSkills = data;
+            renderSkills(data);
+            populateSkillDropdown(data);
+          });
+      }
+
+      function populateSkillDropdown(data) {
+        selectSkill.innerHTML = '<option value="">-- Select Skill --</option>';
+        data.forEach((skill) => {
+          selectSkill.innerHTML += `<option value="${skill.skillId}">${skill.skillName}</option>`;
+        });
+      }
+
+      function renderSkills(skills) {
+        skillTableBody.innerHTML = "";
+        skills.forEach((skill) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${skill.skillId}</td>
+            <td>${skill.skillName}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${skill.skillId}">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          `;
+          skillTableBody.appendChild(row);
+        });
+
+        document.querySelectorAll(".delete-btn").forEach((btn) => {
+          btn.addEventListener("click", () => deleteSkill(btn.dataset.id));
+        });
+      }
+
+      function deleteSkill(id) {
+        if (confirm("Are you sure you want to delete this skill?")) {
+          fetch(`${baseUrl}/api/skills/${id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+          }).then(fetchSkills);
+        }
+      }
+
+      searchInput.addEventListener("input", () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const filtered = allSkills.filter((s) =>
+          s.skillName.toLowerCase().includes(searchTerm)
+        );
+        renderSkills(filtered);
+      });
+
+      document
+        .querySelector("th:nth-child(2)")
+        .addEventListener("click", () => {
+          const sorted = [...allSkills].sort(
+            (a, b) => a.skillName.localeCompare(b.skillName) * sortDirection
+          );
+          sortDirection *= -1;
+          renderSkills(sorted);
+        });
+
+      function addSkillToUser() {
+        const skillId = selectSkill.value;
+        if (!skillId) return alert("Please select a skill");
+
+        fetch(`${baseUrl}/api/users/${userId}/addSkill`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ skillId: Number(skillId) }),
+        })
+          .then((res) => res.text())
+          .then((msg) => {
+            alert(msg);
+          })
+          .catch((err) => console.error("Error:", err));
+      }
+
+      // Initial load
+      fetchSkills();
+    </script>
+  </body>
+</html>
