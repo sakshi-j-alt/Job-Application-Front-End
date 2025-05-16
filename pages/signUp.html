@@ -93,6 +93,77 @@
       </div>
     </div>
   </div>
+<script src="../js/script.js"></script>
+ <script>
+const form = document.getElementById("userForm");
+
+form.addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const username = document.getElementById("username").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const age = document.getElementById("age").value.trim();
+  const gender = document.getElementById("gender").value.trim();
+  const usertype = document.getElementById("usertype").value.trim();
+
+  // Password validation
+  const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+  if (!passRegex.test(password)) {
+    alert("Password must be at least 8 characters with 1 uppercase, 1 lowercase, and 1 special character.");
+    return;
+  }
+
+  // Phone validation
+  if (!/^[789]\d{9}$/.test(phone)) {
+    alert("Enter a valid 10-digit number starting with 7, 8, or 9.");
+    return;
+  }
+
+  // Basic required fields check
+  if (!username || !email || !address || !age || !gender || !usertype) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  const newUser = {
+    userName: username,
+    userEmail: email,
+    password: password,
+    phone: phone,
+    address: address,
+    age: Number(age),
+    gender: gender.charAt(0).toUpperCase() + gender.slice(1),
+    userType: usertype.toUpperCase()
+  };
+
+  fetch(`${baseUrl}/auth/register`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(newUser),
+  })
+    .then(async (response) => {
+      if (response.ok) {
+        alert("Registration successful!");
+        form.reset();
+      } else {
+        const errorMsg = await response.text();
+        if (errorMsg.includes("Exists")) {
+          alert("Email already exists. Try again with a new email.");
+        } else {
+          alert("Registration failed: " + errorMsg);
+        }
+      }
+    })
+    .catch(() => {
+      alert("Network or server error. Please try again later.");
+    });
+});
+</script>
+
+
 </body>
 
 </html>
