@@ -16,17 +16,31 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
       rel="stylesheet"
     />
-
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <style>
+      /* Make the canvas take full width and height of the card body */
+      .card-body canvas {
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain;
+      }
+      /* Ensure card body has relative height to contain canvas */
+      .card-body {
+        position: relative;
+        height: 100%;
+        padding: 1rem;
+      }
+      /* Ensure the card itself has fixed height to control chart size */
+      .card {
+        height: 400px;
+      }
+    </style>
   </head>
 
   <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-      <a class="navbar-brand" href="#">Company</a>
+      <a class="navbar-brand" href="#">404</a>
       <div class="ms-auto dropdown">
         <a
           class="nav-link dropdown-toggle text-white"
@@ -36,7 +50,7 @@
           <i class="fa fa-user"></i> Admin
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <li><a class="dropdown-item" href="#" onclick="companyProfile.html">Profile</a></li>
           <li>
             <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
           </li>
@@ -53,11 +67,7 @@
         <h5 class="text-white mb-3">Navigation</h5>
         <ul class="nav flex-column">
           <li class="nav-item">
-            <a
-              href="companyDashboard.html"
-              class="nav-link text-white"
-             
-            >
+            <a href="companyDashboard.html" class="nav-link text-white">
               <i class="fa fa-chart-line me-2"></i> Dashboard
             </a>
           </li>
@@ -124,12 +134,7 @@
         <div style="display: flex; justify-content: space-between; height: 25%">
           <div
             class="card"
-            style="
-              width: 33.33%;
-              height: 150px;
-              margin-right: 1%;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            "
+            style="width: 33.33%; height: 150px; margin-right: 1%"
           >
             <div class="card-body">
               <h5 class="card-title">Card 1</h5>
@@ -138,26 +143,14 @@
           </div>
           <div
             class="card"
-            style="
-              width: 33.33%;
-              height: 150px;
-              margin-right: 1%;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            "
+            style="width: 33.33%; height: 150px; margin-right: 1%"
           >
             <div class="card-body">
               <h5 class="card-title">Card 2</h5>
               <p class="card-text">Content for card 2.</p>
             </div>
           </div>
-          <div
-            class="card"
-            style="
-              width: 33.33%;
-              height: 150px;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            "
-          >
+          <div class="card" style="width: 33.33%; height: 150px">
             <div class="card-body">
               <h5 class="card-title">Card 3</h5>
               <p class="card-text">Content for card 3.</p>
@@ -174,31 +167,18 @@
             height: 75%;
           "
         >
-          <div
-            class="card"
-            style="
-              width: 49%;
-              height: 400px;
-              margin-right: 1%;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            "
-          >
+          <!-- Chart 1: Applications per Job -->
+          <div class="card" style="width: 49%; height: 400px; margin-right: 1%">
             <div class="card-body">
-              <h5 class="card-title">Chart 1</h5>
-              <!-- Chart 1 content here -->
+              <h5 class="card-title">Applications per Job</h5>
+              <canvas id="applicationsJobChart" height="300"></canvas>
             </div>
           </div>
-          <div
-            class="card"
-            style="
-              width: 49%;
-              height: 400px;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            "
-          >
+          <!-- Chart 2: Skill vs Applicants -->
+          <div class="card" style="width: 49%; height: 400px">
             <div class="card-body">
-              <h5 class="card-title">Chart 2</h5>
-              <!-- Chart 2 content here -->
+              <h5 class="card-title">Skill vs Applicants</h5>
+              <canvas id="skillApplicantsChart" height="300"></canvas>
             </div>
           </div>
         </div>
@@ -206,11 +186,95 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3">
+    <footer class="bg-dark text-white text-center py-3 footer">
       &copy; 2025 User Dashboard. All rights reserved.
     </footer>
     <script src="../js/script.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // Chart 1: Applications per Job (dummy data)
+      const jobTitles = [
+        "Frontend Dev",
+        "Backend Dev",
+        "QA Analyst",
+        "UI/UX Designer",
+      ];
+      const applicationsCount = [23, 18, 12, 8];
+
+      const ctx1 = document
+        .getElementById("applicationsJobChart")
+        .getContext("2d");
+      new Chart(ctx1, {
+        type: "bar",
+        data: {
+          labels: jobTitles,
+          datasets: [
+            {
+              label: "Applications",
+              data: applicationsCount,
+              backgroundColor: [
+                "rgba(54, 162, 235, 0.7)",
+                "rgba(255, 99, 132, 0.7)",
+                "rgba(255, 206, 86, 0.7)",
+                "rgba(75, 192, 192, 0.7)",
+              ],
+              borderColor: [
+                "rgba(54, 162, 235, 1)",
+                "rgba(255, 99, 132, 1)",
+                "rgba(255, 206, 86, 1)",
+                "rgba(75, 192, 192, 1)",
+              ],
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: { beginAtZero: true },
+          },
+        },
+      });
+
+      // Chart 2: Skill vs Applicants (dummy data)
+      const skillLabels = ["JavaScript", "Python", "React", "SQL", "Java"];
+      const applicantCounts = [30, 22, 18, 15, 12];
+
+      const ctx2 = document
+        .getElementById("skillApplicantsChart")
+        .getContext("2d");
+      new Chart(ctx2, {
+        type: "bar",
+        data: {
+          labels: skillLabels,
+          datasets: [
+            {
+              label: "Applicants",
+              data: applicantCounts,
+              backgroundColor: [
+                "rgba(255, 99, 132, 0.7)",
+                "rgba(54, 162, 235, 0.7)",
+                "rgba(255, 206, 86, 0.7)",
+                "rgba(75, 192, 192, 0.7)",
+                "rgba(153, 102, 255, 0.7)",
+              ],
+              borderColor: [
+                "rgba(255, 99, 132, 1)",
+                "rgba(54, 162, 235, 1)",
+                "rgba(255, 206, 86, 1)",
+                "rgba(75, 192, 192, 1)",
+                "rgba(153, 102, 255, 1)",
+              ],
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: { beginAtZero: true },
+          },
+        },
+      });
+    </script>
   </body>
 </html>
