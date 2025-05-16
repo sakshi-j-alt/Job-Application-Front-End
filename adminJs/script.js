@@ -1,3 +1,5 @@
+const baseUrl="http://localhost:8080";
+
 function loadPage(page) {
     fetch(`pages/${page}`)
         .then(response => response.text())
