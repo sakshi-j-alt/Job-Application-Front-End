@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Company Dashboard</title>
-    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       rel="stylesheet"
@@ -13,6 +16,7 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="../css/companyProfile.css" />
     <style>
       /* Make the canvas take full width and height of the card body */
       .card-body canvas {
@@ -48,7 +52,10 @@
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
           <li>
-            <a class="dropdown-item" href="#" onclick="companyProfile.html"
+            <a
+              class="dropdown-item"
+              href="#"
+              onclick="loadPage('companyProfile.html')"
               >Profile</a
             >
           </li>
@@ -118,6 +125,15 @@
                   onclick="loadPage('top5JobsByDomain.html')"
                 >
                   Top 5 Jobs by Domain
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  onclick="loadPage('userQualification.html')"
+                >
+                  user Qualification
                 </a>
               </li>
             </ul>
@@ -191,8 +207,14 @@
       &copy; 2025 User Dashboard. All rights reserved.
     </footer>
     <script src="../js/script.js"></script>
-    <script src="../https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Bootstrap JS Bundle with Popper (includes dropdown functionality) -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-..."
+      crossorigin="anonymous"
+    ></script>
+
     <script>
       fetch(`${baseUrl}/api/applications/count`)
         .then((res) => res.json())
