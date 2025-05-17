@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Job-wise Applicants Table</title>
+    <title>Job-wise Applicants</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -26,69 +26,98 @@
     </style>
   </head>
   <body>
-    <h2 class="mb-4 text-center">Job-wise Applicants</h2>
-    <div class="table-responsive">
-      <table class="table table-bordered align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>Job Title</th>
-            <th>Applicant ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Contact</th>
-            <th>Gender</th>
-            <th>Age</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="applications-tbody">
-          <!-- Rows will be populated by JS -->
-        </tbody>
-      </table>
+    <div class="table-container">
+      <h2 class="mb-4 text-center">Job-wise Applicants</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Job Title</th>
+              <th>Application ID</th>
+              <th>Applied Date</th>
+              <th>Status</th>
+              <th>Company</th>
+              <th>Location</th>
+            </tr>
+          </thead>
+          <tbody id="applications-tbody">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
+    <script src="../js/script.js"></script>
     <script>
-      (function () {
-        
+      const applicationsUrl = `${baseUrl}/api/application`;
+      const companiesUrl = `${baseUrl}/api/companies`;
+
+      async function loadData() {
         const tbody = document.getElementById("applications-tbody");
 
-        function renderJobs(jobs) {
-          tbody.innerHTML = ""; // Clear previous rows
-          jobs.forEach((job) => {
-            job.applicants.forEach((app, idx) => {
-              const tr = document.createElement("tr");
-              if (idx === 0) {
-                tr.innerHTML += `<td rowspan="${job.applicants.length}" class="fw-bold">${job.title}</td>`;
-              }
-              tr.innerHTML += `
-          <td>${app.userId}</td>
-          <td>${app.userName}</td>
-          <td>${app.email}</td>
-          <td>${app.contact}</td>
-          <td>${app.gender}</td>
-          <td>${app.age}</td>
-          <td>
-            <span class="badge ${
-              app.status === "Selected" ? "bg-success" : "bg-danger"
-            }">
-              ${app.status}
-            </span>
-          </td>
-        `;
-              tbody.appendChild(tr);
+        try {
+          const [appRes, compRes] = await Promise.all([
+            fetch(applicationsUrl),
+            fetch(companiesUrl),
+          ]);
+
+          const applications = await appRes.json();
+          const companies = await compRes.json();
+
+          const appMap = {};
+          applications.forEach((a) => {
+            appMap[a.applicationId] = a;
+          });
+
+          tbody.innerHTML = "";
+
+          companies.forEach((company) => {
+            (company.jobs || []).forEach((job) => {
+              const jobApplications = job.applications || [];
+              jobApplications.forEach((jobApp, index) => {
+                const detailedApp = appMap[jobApp.applicationId];
+
+                if (!detailedApp) return; // skip if not found
+
+                const tr = document.createElement("tr");
+
+                if (index === 0) {
+                  tr.innerHTML += `
+                    <td rowspan="${jobApplications.length}" class="fw-bold">
+                      ${job.jobTitle}
+                    </td>
+                  `;
+                }
+
+                tr.innerHTML += `
+                  <td>${jobApp.applicationId}</td>
+                  <td>${detailedApp.appliedDate}</td>
+                  <td><span class="badge ${
+                    detailedApp.status === "Applied"
+                      ? "bg-warning text-dark"
+                      : detailedApp.status === "Selected"
+                      ? "bg-success"
+                      : "bg-danger"
+                  }">${detailedApp.status}</span></td>
+                  <td>${company.companyName}</td>
+                  <td>${job.jobLocation}</td>
+                `;
+
+                tbody.appendChild(tr);
+              });
             });
           });
+        } catch (error) {
+          console.error("Error loading data:", error);
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center text-danger">Failed to load data</td>
+            </tr>
+          `;
         }
+      }
 
-        // Fetch jobs and applicants from backend
-        fetch(`${baseUrl}/api/job-applicants`)
-          .then((res) => res.json())
-          .then((jobs) => renderJobs(jobs))
-          .catch((err) => {
-            tbody.innerHTML = `<tr><td colspan="8" class="text-danger text-center">Failed to load data.</td></tr>`;
-            console.error("Error fetching job applicants:", err);
-          });
-      })();
+      loadData();
     </script>
   </body>
 </html>
