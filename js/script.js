@@ -117,7 +117,7 @@ function getUserType() {
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "login.html";
     const decoded = decodeJWT(token);
-    return decoded.userType;
+    return decoded.usertype;
 }
 
 function getAuthorization() {
@@ -126,13 +126,6 @@ function getAuthorization() {
     return `Bearer ${token}`;
 }
 
-
-
-function logout() {
-    localStorage.removeItem("token");
-    localStorage.clear();
-    window.location.href = "login.html";
-}
 
 
 // ✅ Toggle sidebar logic
@@ -159,5 +152,5 @@ document.addEventListener('DOMContentLoaded', function () {
 function logout() {
     localStorage.removeItem("token");
     localStorage.clear();
-    window.location.href = "login.html";
+    window.location.href = "../pages/login.html";
 }
