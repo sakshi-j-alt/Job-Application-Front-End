@@ -96,7 +96,7 @@ function getUserId() {
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "login.html";
     const decoded = decodeJWT(token);
-    return decoded.userid;
+    return decoded.userId;
 }
 
 function getUserName() {
@@ -117,7 +117,7 @@ function getUserType() {
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "login.html";
     const decoded = decodeJWT(token);
-    return decoded.usertype;
+    return decoded.userType;
 }
 
 function getAuthorization() {
@@ -127,11 +127,13 @@ function getAuthorization() {
 }
 
 
-// function logout() {
-//     localStorage.removeItem("token");
-//     localStorage.clear();
-//     window.location.href = "login.html";
-// }
+
+function logout() {
+    localStorage.removeItem("token");
+    localStorage.clear();
+    window.location.href = "login.html";
+}
+
 
 // ✅ Toggle sidebar logic
 document.addEventListener('DOMContentLoaded', function () {

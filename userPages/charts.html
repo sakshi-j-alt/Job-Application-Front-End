@@ -20,31 +20,30 @@
     <canvas id="roleChart" height="120"></canvas>
   </div>
 
-  <!-- <script src="../js/script.js"></script> -->
   <script>
-    async function renderCharts() {
-      // Get token from localStorage (if needed for authentication)
-      const token = localStorage.getItem("token");
+    
+async function renderCharts() {
+  const token = localStorage.getItem("token");
+  const userId = getUserId(); // This uses your decodeJWT helper
 
-      // Helper to fetch with or without token
-      async function fetchChartData(url) {
-        const options = token ? { headers: { "Authorization": `Bearer ${token}` } } : {};
-        const res = await fetch(url, options);
-        if (!res.ok) throw new Error('HTTP error ' + res.status);
-        return res.json();
-      }
+  // Helper to fetch with token
+  async function fetchChartData(url) {
+    const options = token ? { headers: { "Authorization": `Bearer ${token}` } } : {};
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error('HTTP error ' + res.status);
+    return res.json();
+  }
 
-      try {
-        const [
-          locationData,
-          industryData,
-          roleData
-        ] = await Promise.all([
-          fetchChartData("http://localhost:8080/charts/applications-by-location"),
-          fetchChartData("http://localhost:8080/charts/jobs-by-company-domain"),
-          fetchChartData("http://localhost:8080/charts/applications-by-job-title"),
-
-        ]);
+  try {
+    const [
+      locationData,
+      industryData,
+      roleData
+    ] = await Promise.all([
+      fetchChartData(`${baseUrl}/charts/applications-by-location/${userId}`),
+      fetchChartData(`${baseUrl}/charts/jobs-by-company-domain/${userId}`),
+      fetchChartData(`${baseUrl}/charts/applications-by-job-title/${userId}`)
+    ]);
 
         // Prepare data for charts
         const locationLabels = locationData.map(item => item.label);
@@ -153,12 +152,12 @@
           },
         });
       } catch (err) {
-        alert("Failed to load analytics data. " + err.message);
-        console.error(err);
-      }
-    }
+    alert("Failed to load analytics data. " + err.message);
+    console.error(err);
+  }
+}
 
-    renderCharts();
+renderCharts();
   </script>
   
 </body>
