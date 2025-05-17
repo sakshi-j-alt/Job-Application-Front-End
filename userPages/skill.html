@@ -13,16 +13,15 @@
   <body class="container my-5">
     <h2 class="mb-4">Skill Management</h2>
 
-    <form id="skillForm" class="mb-4">
-      <div class="mb-3">
-        <label for="skillName" class="form-label">Skill Name</label>
-        <input type="text" class="form-control" id="skillName" required />
-        <div class="invalid-feedback">At least 2 characters required.</div>
-      </div>
-      <button type="submit" class="btn btn-primary" id="submitBtn">
-        Add Skill
+    <div class="mb-4">
+      <label for="selectSkill" class="form-label">Assign Skill to User</label>
+      <select id="selectSkill" class="form-select mb-2">
+        <option value="">-- Select Skill --</option>
+      </select>
+      <button class="btn btn-success" onclick="addSkillToUser()">
+        Assign Skill
       </button>
-    </form>
+    </div>
 
     <input
       type="text"
@@ -43,36 +42,36 @@
       </thead>
       <tbody id="skillTableBody"></tbody>
     </table>
-    <script src="../adminJs/script.js"></script>
 
     <script>
-      const skillForm = document.getElementById("skillForm");
-      const skillNameInput = document.getElementById("skillName");
-      const submitBtn = document.getElementById("submitBtn");
+      const baseUrl = "http://localhost:8080"; // <-- Replace with your backend URL
+      const userId = getUserId();
+      // const userId = 2;
+
       const searchInput = document.getElementById("searchInput");
       const skillTableBody = document.getElementById("skillTableBody");
+      const selectSkill = document.getElementById("selectSkill");
 
       let allSkills = [];
-      let editId = null;
       let sortDirection = 1;
-      function validateForm() {
-        if (skillNameInput.value.trim().length < 2) {
-          skillNameInput.classList.add("is-invalid");
-          return false;
-        }
-        skillNameInput.classList.remove("is-invalid");
-        return true;
-      }
 
       function fetchSkills() {
-        fetch(`${baseUrl}/api/skills/`, {
+        fetch(`${baseUrl}/api/skills`, {
           headers: { "Content-Type": "application/json" },
         })
           .then((res) => res.json())
           .then((data) => {
             allSkills = data;
             renderSkills(data);
+            populateSkillDropdown(data);
           });
+      }
+
+      function populateSkillDropdown(data) {
+        selectSkill.innerHTML = '<option value="">-- Select Skill --</option>';
+        data.forEach((skill) => {
+          selectSkill.innerHTML += `<option value="${skill.skillId}">${skill.skillName}</option>`;
+        });
       }
 
       function renderSkills(skills) {
@@ -81,11 +80,8 @@
           const row = document.createElement("tr");
           row.innerHTML = `
             <td>${skill.skillId}</td>
-            <td>${skill.name}</td>
+            <td>${skill.skillName}</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${skill.skillId}">
-                <i class="bi bi-pencil-square"></i>
-              </button>
               <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${skill.skillId}">
                 <i class="bi bi-trash"></i>
               </button>
@@ -94,25 +90,9 @@
           skillTableBody.appendChild(row);
         });
 
-        document.querySelectorAll(".edit-btn").forEach((btn) => {
-          btn.addEventListener("click", () => loadSkill(btn.dataset.id));
-        });
-
         document.querySelectorAll(".delete-btn").forEach((btn) => {
           btn.addEventListener("click", () => deleteSkill(btn.dataset.id));
         });
-      }
-
-      function loadSkill(id) {
-        fetch(`${baseUrl}/api/skills/${id}`, {
-          headers: { "Content-Type": "application/json" },
-        })
-          .then((res) => res.json())
-          .then((skill) => {
-            skillNameInput.value = skill.name;
-            editId = skill.skillId;
-            submitBtn.textContent = "Update Skill";
-          });
       }
 
       function deleteSkill(id) {
@@ -124,39 +104,10 @@
         }
       }
 
-      skillForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        if (!validateForm()) return;
-
-        const skill = { name: skillNameInput.value.trim() };
-
-        if (editId) {
-          fetch(`${baseUrl}/api/skills/${editId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(skill),
-          }).then(() => {
-            fetchSkills();
-            skillForm.reset();
-            submitBtn.textContent = "Add Skill";
-            editId = null;
-          });
-        } else {
-          fetch(`${baseUrl}/api/skills`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(skill),
-          }).then(() => {
-            fetchSkills();
-            skillForm.reset();
-          });
-        }
-      });
-
       searchInput.addEventListener("input", () => {
         const searchTerm = searchInput.value.toLowerCase();
         const filtered = allSkills.filter((s) =>
-          s.name.toLowerCase().includes(searchTerm)
+          s.skillName.toLowerCase().includes(searchTerm)
         );
         renderSkills(filtered);
       });
@@ -165,12 +116,29 @@
         .querySelector("th:nth-child(2)")
         .addEventListener("click", () => {
           const sorted = [...allSkills].sort(
-            (a, b) => a.name.localeCompare(b.name) * sortDirection
+            (a, b) => a.skillName.localeCompare(b.skillName) * sortDirection
           );
           sortDirection *= -1;
           renderSkills(sorted);
         });
 
+      function addSkillToUser() {
+        const skillId = selectSkill.value;
+        if (!skillId) return alert("Please select a skill");
+
+        fetch(`${baseUrl}/api/users/${userId}/addSkill`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ skillId: Number(skillId) }),
+        })
+          .then((res) => res.text())
+          .then((msg) => {
+            alert(msg);
+          })
+          .catch((err) => console.error("Error:", err));
+      }
+
+      // Initial load
       fetchSkills();
     </script>
   </body>

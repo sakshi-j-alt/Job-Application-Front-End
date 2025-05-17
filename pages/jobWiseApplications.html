@@ -1,119 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Job-wise Applicants Table</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <style>
-    body {
-      background: #f8f9fa;
-    }
-    .table-container {
-      max-width: 1100px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-      padding: 32px;
-    }
-    .badge {
-      font-size: 1em;
-    }
-  </style>
-</head>
-<body>
-  
-    <h2 class="mb-4 text-center">Job-wise Applicants</h2>
-    <div class="table-responsive">
-      <table class="table table-bordered align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>Job Title</th>
-            <th>Applicant ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Contact</th>
-            <th>Gender</th>
-            <th>Age</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="applications-tbody">
-          <!-- Rows will be populated by JS -->
-        </tbody>
-      </table>
-    </div>
-  
 
-  <script>
-    (function () {
-    const jobs = [
-      {
-        jobid: 101,
-        title: "Frontend Developer",
-        applicants: [
-          {
-            userId: 1,
-            userName: "Priya Sharma",
-            email: "priya.sharma@email.com",
-            contact: "9876543210",
-            gender: "Female",
-            age: 25,
-            status: "Selected"
-          },
-          {
-            userId: 2,
-            userName: "Amit Verma",
-            email: "amit.verma@email.com",
-            contact: "9876501234",
-            gender: "Male",
-            age: 26,
-            status: "Rejected"
-          }
-        ]
-      },
-      {
-        jobid: 102,
-        title: "Backend Developer",
-        applicants: [
-          {
-            userId: 3,
-            userName: "Sunita Rao",
-            email: "sunita.rao@email.com",
-            contact: "9876512345",
-            gender: "Female",
-            age: 27,
-            status: "Selected"
-          }
-        ]
+    <style>
+      body {
+        background: #f8f9fa;
       }
-    ];
+      .table-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+        padding: 32px;
+      }
+      .badge {
+        font-size: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="table-container">
+      <h2 class="mb-4 text-center">Job-wise Applicants</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Job Title</th>
+              <th>Application ID</th>
+              <th>Applied Date</th>
+              <th>Status</th>
+              <th>Company</th>
+              <th>Location</th>
+            </tr>
+          </thead>
+          <tbody id="applications-tbody">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-    const tbody = document.getElementById('applications-tbody');
-    jobs.forEach(job => {
-      job.applicants.forEach((app, idx) => {
-        const tr = document.createElement('tr');
-        if (idx === 0) {
-          tr.innerHTML += `<td rowspan="${job.applicants.length}" class="fw-bold">${job.title}</td>`;
+    <script>
+      const applicationsUrl = `${baseUrl}/api/application`;
+      const companiesUrl = `${baseUrl}/api/companies`;
+
+      async function loadData() {
+        const tbody = document.getElementById("applications-tbody");
+
+        try {
+          const [appRes, compRes] = await Promise.all([
+            fetch(applicationsUrl,{
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: getAuthorization(),
+          },
+        }),
+            fetch(companiesUrl,{
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: getAuthorization(),
+          },
+        }),
+          ]);
+
+          const applications = await appRes.json();
+          const companies = await compRes.json();
+
+          const appMap = {};
+          applications.forEach((a) => {
+            appMap[a.applicationId] = a;
+          });
+
+          tbody.innerHTML = "";
+
+          companies.forEach((company) => {
+            (company.jobs || []).forEach((job) => {
+              const jobApplications = job.applications || [];
+              jobApplications.forEach((jobApp, index) => {
+                const detailedApp = appMap[jobApp.applicationId];
+
+                if (!detailedApp) return; // skip if not found
+
+                const tr = document.createElement("tr");
+
+                if (index === 0) {
+                  tr.innerHTML += `
+                    <td rowspan="${jobApplications.length}" class="fw-bold">
+                      ${job.jobTitle}
+                    </td>
+                  `;
+                }
+
+                tr.innerHTML += `
+                  <td>${jobApp.applicationId}</td>
+                  <td>${detailedApp.appliedDate}</td>
+                  <td><span class="badge ${
+                    detailedApp.status === "Applied"
+                      ? "bg-warning text-dark"
+                      : detailedApp.status === "Selected"
+                      ? "bg-success"
+                      : "bg-danger"
+                  }">${detailedApp.status}</span></td>
+                  <td>${company.companyName}</td>
+                  <td>${job.jobLocation}</td>
+                `;
+
+                tbody.appendChild(tr);
+              });
+            });
+          });
+        } catch (error) {
+          console.error("Error loading data:", error);
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center text-danger">Failed to load data</td>
+            </tr>
+          `;
         }
-        tr.innerHTML += `
-          <td>${app.userId}</td>
-          <td>${app.userName}</td>
-          <td>${app.email}</td>
-          <td>${app.contact}</td>
-          <td>${app.gender}</td>
-          <td>${app.age}</td>
-          <td>
-            <span class="badge ${app.status === 'Selected' ? 'bg-success' : 'bg-danger'}">
-              ${app.status}
-            </span>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    });
-    })();
-  </script>
-</body>
-</html>
+      }
+
+      loadData();
+    </script>
+  </body>
+

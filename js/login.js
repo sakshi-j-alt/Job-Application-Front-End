@@ -8,12 +8,12 @@ function verify() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  fetch("http://localhost:8080/auth/signin", {
+  fetch(`${baseUrl}/auth/signin`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ username: email, password: password })
+    body: JSON.stringify({ userEmail: email, password: password })
   })
     .then(response => {
       // Handle HTTP status codes with console logs
@@ -38,10 +38,11 @@ function verify() {
         throw new Error("Token Not Found");
 
       const userType = getUserType();
-      if (userType === "ADMIN") {
-        window.location.href = "admin_index.html";
+      if (userType === "USER") {
+        // window.location.href = "../pages/companyDashboard.html";
+        window.location.href = "../userPages/User.html";
       } else {
-        window.location.href = "user_index.html";
+        window.location.href = "../pages/companyDashboard.html";
       }
     }
     )
