@@ -38,10 +38,11 @@ function verify() {
         throw new Error("Token Not Found");
 
       const userType = getUserType();
-      if (userType === "ADMIN") {
-        window.location.href = "admin_index.html";
-      } else {
+      if (userType === "USER") {
+        // window.location.href = "../pages/companyDashboard.html";
         window.location.href = "../userPages/User.html";
+      } else {
+        window.location.href = "../pages/companyDashboard.html";
       }
     }
     )

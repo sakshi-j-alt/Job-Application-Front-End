@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Post a Job</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
   <div class="container py-5">
@@ -61,7 +61,9 @@
   </div>
 
   <script>
-    (function () {
+ 
+
+(function () {
   document.addEventListener("DOMContentLoaded", function() {
     const locationSelect = document.getElementById('location');
     const jobsTableBody = document.querySelector('table tbody');
@@ -69,7 +71,7 @@
 
     // Fetch and populate locations
     function loadLocations() {
-      fetch('/api/locations')
+      fetch(`${baseUrl}/api/locations`)
         .then(res => res.json())
         .then(locations => {
           locationSelect.innerHTML = '<option value="">Select Location</option>';
@@ -84,7 +86,7 @@
 
     // Fetch and render jobs
     function loadJobs() {
-      fetch('/api/jobs')
+      fetch(`${baseUrl}/api/jobs`)
         .then(res => res.json())
         .then(jobs => {
           jobsTableBody.innerHTML = '';
@@ -92,14 +94,14 @@
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td>${idx + 1}</td>
-              <td>${job.companyid}</td>
-              <td>${job.skillname}</td>
+              <td>${job.company ? job.company.companyId : ''}</td>
+              <td>${job.jobTitle}</td>
               <td>${job.salary}</td>
-              <td>${job.jd}</td>
-              <td>${job.location}</td>
+              <td>${job.description}</td>
+              <td>${job.jobLocation}</td>
               <td class="text-center">
-                <button class="btn btn-sm btn-warning btn-edit" data-id="${job.id}">Edit</button>
-                <button class="btn btn-sm btn-danger btn-delete" data-id="${job.id}">Delete</button>
+                <button class="btn btn-sm btn-warning btn-edit" data-id="${job.jobId}">Edit</button>
+                <button class="btn btn-sm btn-danger btn-delete" data-id="${job.jobId}">Delete</button>
               </td>
             `;
             jobsTableBody.appendChild(tr);
@@ -110,10 +112,19 @@
     // Handle form submission
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-      
-      fetch('/api/jobs', {
+
+      const data = {
+        company: { companyId: Number(form.companyid.value) }, // nested object, convert to number
+        jobTitle: form.skillname.value, // use skillname input for job title
+        salary: Number(form.salary.value), // convert to number
+        description: form.jd.value,
+        jobLocation: form.location.value
+        // Add postingDate and deadlineDate if you want, e.g.:
+        // postingDate: "2024-05-17",
+        // deadlineDate: "2024-06-01"
+      };
+
+      fetch(`${baseUrl}/api/jobs`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
@@ -129,7 +140,7 @@
       if (e.target.classList.contains('btn-delete')) {
         const id = e.target.getAttribute('data-id');
         if (confirm('Delete this job?')) {
-          fetch(`/api/jobs/${id}`, {method: 'DELETE'})
+          fetch(`${baseUrl}/api/jobs/${id}`, {method: 'DELETE'})
             .then(() => loadJobs());
         }
       }
@@ -139,7 +150,8 @@
     loadLocations();
     loadJobs();
   });
-  })();
+})();
+
   </script>
 </body>
 </html>
