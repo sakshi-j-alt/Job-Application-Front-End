@@ -89,7 +89,7 @@
   <script>
     (
       function(){
-        const baseUrl = "http://localhost:8080"; // update your backend URL
+       
 
     const form = document.getElementById("userForm");
     const userTypeSelect = document.getElementById("usertype");
@@ -124,7 +124,9 @@
 
       fetch(`${baseUrl}/auth/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`}
+         ,
         body: JSON.stringify(newUser),
       })
         .then(async (response) => {

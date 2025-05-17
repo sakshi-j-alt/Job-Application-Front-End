@@ -95,14 +95,14 @@
 
     <script>
       (function () {
-        const baseUrl = "http://localhost:8080/api"; // Adjust to your backend base URL
+       
         const userId = getUserId(); // Replace with the logged-in user ID dynamically
 
         async function loadUserDashboard() {
           try {
             console.log(userId)
         
-            const res = await fetch(`${baseUrl}/users/userDto/${userId}`);
+            const res = await fetch(`${baseUrl}/users/userDto/${userId}`,{headers: {"Authorization": `Bearer ${token}`}});
             const dashboard = await res.json();
 
             document.getElementById("appliedVal").textContent =

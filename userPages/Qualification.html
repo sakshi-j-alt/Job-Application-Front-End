@@ -153,8 +153,8 @@
     </div>
 
     <script>
-        const baseUrl = 'http://localhost:8080';
-        const userId = 1; // Example static value
+        
+        const userId = getUserId(); 
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('userId').value = userId;
@@ -200,7 +200,7 @@
 
         async function getQualifications() {
             try {
-                const res = await fetch(`${baseUrl}/api/qualifications/user/${userId}`);
+                const res = await fetch(`${baseUrl}/api/qualifications/user/${userId}`, {headers: {"Authorization": `Bearer ${token}`}});
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 renderQualifications(data);
@@ -212,7 +212,9 @@
         async function createQualification(data) {
             const res = await fetch(`${baseUrl}/api/qualifications`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json' ,
+                    "Authorization": `Bearer ${token}`
+                },
                 body: JSON.stringify(data)
             });
             if (!res.ok) throw new Error();
@@ -221,7 +223,9 @@
         async function updateQualification(id, data) {
             const res = await fetch(`${baseUrl}/api/qualifications/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json',
+                  "Authorization": `Bearer ${token}`
+                 },
                 body: JSON.stringify(data)
             });
             if (!res.ok) throw new Error();
@@ -229,14 +233,16 @@
 
         async function deleteQualification(id) {
             const res = await fetch(`${baseUrl}/api/qualifications/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {"Authorization": `Bearer ${token}`}
             });
             if (!res.ok) throw new Error();
         }
 
         async function deleteAllQualifications() {
             const res = await fetch(`${baseUrl}/api/qualifications/user/${userId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {"Authorization": `Bearer ${token}`}
             });
             if (!res.ok) throw new Error();
         }

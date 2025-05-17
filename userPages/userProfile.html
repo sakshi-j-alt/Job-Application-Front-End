@@ -89,7 +89,7 @@
   const passwordInput = document.getElementById("Password");
 
   function loadUserProfile() {
-    fetch(`${apiUrl}/${userId}`)
+    fetch(`${apiUrl}/${userId}`,{headers: {"Authorization": `Bearer ${token}`}})
       .then(res => {
         if (!res.ok) throw new Error("Network response was not ok");
         return res.json();
@@ -131,7 +131,8 @@
     fetch(`${apiUrl}/${userId}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+       "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(updatedUser)
     })

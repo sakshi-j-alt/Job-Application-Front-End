@@ -216,7 +216,7 @@
     ></script>
 
     <script>
-      fetch(`${baseUrl}/api/applications/count`)
+      fetch(`${baseUrl}/api/applications/count`, {headers: {"Authorization": `Bearer ${token}`}})
         .then((res) => res.json())
         .then((data) => {
           document.getElementById("applications-count").textContent =
@@ -227,7 +227,7 @@
         });
 
       // Fetch jobs posted count
-      fetch(`${baseUrl}/api/jobs/count`)
+      fetch(`${baseUrl}/api/jobs/count`,{headers: {"Authorization": `Bearer ${token}`}})
         .then((res) => res.json())
         .then((data) => {
           document.getElementById("jobs-count").textContent = data.count;
@@ -237,7 +237,7 @@
         });
 
       // Fetch male/female count
-      fetch(`${baseUrl}/api/applicants/gender-count`)
+      fetch(`${baseUrl}/api/applicants/gender-count`, {headers: {"Authorization": `Bearer ${token}`}})
         .then((res) => res.json())
         .then((data) => {
           document.getElementById(
@@ -248,7 +248,7 @@
           document.getElementById("gender-count").textContent = "Error";
         });
       // Chart 1: Applications per Job
-      fetch(`${baseUrl}/api/charts/applications-per-job`)
+      fetch(`${baseUrl}/api/charts/applications-per-job`,{headers: {"Authorization": `Bearer ${token}`}})
         .then((res) => res.json())
         .then((data) => {
           // Assume your backend returns: { labels: [...], counts: [...] }
@@ -288,7 +288,7 @@
         });
 
       // Chart 2: Skill vs Applicants
-      fetch(`${baseUrl}/api/charts/skill-vs-applicants`)
+      fetch(`${baseUrl}/api/charts/skill-vs-applicants`,{headers: {"Authorization": `Bearer ${token}`}})
         .then((res) => res.json())
         .then((data) => {
           // Assume your backend returns: { labels: [...], counts: [...] }

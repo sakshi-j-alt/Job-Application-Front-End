@@ -67,7 +67,7 @@ const currentUserId = 2; // <-- Set this as per your auth/session
 // Fetch jobs from backend and render cards
 async function loadJobs() {
   try {
-    const res = await fetch(`${baseUrl}/api/jobs`);
+    const res = await fetch(`${baseUrl}/api/jobs`, {headers: {"Authorization": `Bearer ${token}`}});
     jobsData = await res.json();
     // Remove jobs the user has already applied to:
     const appliedJobIds = await getAppliedJobIdsForUser(currentUserId);
@@ -86,7 +86,7 @@ async function loadJobs() {
 // Get job IDs the user has already applied to
 async function getAppliedJobIdsForUser(userId) {
   try {
-    const res = await fetch(`${baseUrl}/api/application`);
+    const res = await fetch(`${baseUrl}/api/application`,{headers: {"Authorization": `Bearer ${token}`}});
     const applications = await res.json();
     return applications
       .filter(app => app.user && app.user.userId === userId)
@@ -172,7 +172,9 @@ async function applyToJob(jobId) {
   try {
     const res = await fetch(`${baseUrl}/api/application`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+       },
       body: JSON.stringify(application)
     });
     if (!res.ok) throw new Error("Failed to apply for job");

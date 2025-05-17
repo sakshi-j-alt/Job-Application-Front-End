@@ -44,7 +44,7 @@
     </table>
 
     <script>
-      const baseUrl = "http://localhost:8080"; // <-- Replace with your backend URL
+      
       const userId = getUserId();
       // const userId = 2;
 
@@ -57,7 +57,9 @@
 
       function fetchSkills() {
         fetch(`${baseUrl}/api/skills`, {
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+           },
         })
           .then((res) => res.json())
           .then((data) => {
@@ -99,7 +101,9 @@
         if (confirm("Are you sure you want to delete this skill?")) {
           fetch(`${baseUrl}/api/skills/${id}`, {
             method: "DELETE",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json" ,
+              "Authorization": `Bearer ${token}`
+            },
           }).then(fetchSkills);
         }
       }
@@ -128,7 +132,9 @@
 
         fetch(`${baseUrl}/api/users/${userId}/addSkill`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+           },
           body: JSON.stringify({ skillId: Number(skillId) }),
         })
           .then((res) => res.text())
