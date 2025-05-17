@@ -1,18 +1,18 @@
-const baseUrl="http://localhost:8080";
+const baseUrl = "http://localhost:8080";
 
-document.getElementById('sidebarToggle').addEventListener('click', function() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('show');
-    
-    const icon = document.getElementById('toggleIcon');
-    if (sidebar.classList.contains('show')) {
-      icon.classList.remove('bi-list');
-      icon.classList.add('bi-x');
-    } else {
-      icon.classList.remove('bi-x');
-      icon.classList.add('bi-list');
-    }
-  });
+// document.getElementById('sidebarToggle').addEventListener('click', function() {
+//     const sidebar = document.getElementById('sidebar');
+//     sidebar.classList.toggle('show');
+
+//     const icon = document.getElementById('toggleIcon');
+//     if (sidebar.classList.contains('show')) {
+//       icon.classList.remove('bi-list');
+//       icon.classList.add('bi-x');
+//     } else {
+//       icon.classList.remove('bi-x');
+//       icon.classList.add('bi-list');
+//     }
+//   });
 
 
 // function loadPage(page) {
@@ -60,7 +60,10 @@ function loadPage(page) {
                 if (script.src) {
                     // Adjust the path if needed
                     const src = script.src.split('/').pop(); // Get just the filename
-                    newScript.src = `js/${src}`; // Assuming all scripts are in js/
+                    const base = location.origin;
+                    const relativePath = script.src.startsWith(base) ? script.src.slice(base.length + 1) : script.src;
+                    newScript.src = relativePath;
+                    // Assuming all scripts are in js/
                 } else {
                     newScript.textContent = script.textContent;
                 }
@@ -114,21 +117,23 @@ function getUserType() {
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "login.html";
     const decoded = decodeJWT(token);
-    return decoded.usertype;
+    return decoded.userType;
 }
 
 function getAuthorization() {
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "login.html";
-    const decoded = decodeJWT(token);
     return `Bearer ${token}`;
 }
+
+
 
 function logout() {
     localStorage.removeItem("token");
     localStorage.clear();
-    window.location.href = "../pages/login.html";
+    window.location.href = "login.html";
 }
+
 
 // ✅ Toggle sidebar logic
 document.addEventListener('DOMContentLoaded', function () {
