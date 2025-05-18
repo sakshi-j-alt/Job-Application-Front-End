@@ -31,7 +31,9 @@
 
 <script>
   // Fetch jobs from backend API
-  fetch(`${baseUrl}/api/jobs/top-salary`, {headers: {"Authorization": `Bearer ${token}`}})
+  fetch(`${baseUrl}/api/jobs/top-salary`, {
+    headers: { Authorization: getAuthorization() },
+  })
     .then((response) => response.json())
     .then((jobs) => {
       const container = document.getElementById("jobs-container");
@@ -59,4 +61,3 @@
         "<p>Failed to load job data.</p>";
     });
 </script>
-<script src="../js/script.js"></script>
