@@ -39,85 +39,82 @@
     </div>
 
     <script>
-      const applicationsUrl = `${baseUrl}/api/application`;
-      const companiesUrl = `${baseUrl}/api/companies`;
+      const userId = getUserId(); 
+      console.log(userId);
+const companiesUrl = `${baseUrl}/api/companies/user/${userId}`;
 
-      async function loadData() {
-        const tbody = document.getElementById("applications-tbody");
+async function loadData() {
+  const tbody = document.getElementById("applications-tbody");
 
-        try {
-          const [appRes, compRes] = await Promise.all([
-            fetch(applicationsUrl,{
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: getAuthorization(),
-          },
-        }),
-            fetch(companiesUrl,{
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: getAuthorization(),
-          },
-        }),
-          ]);
+  try {
+    const compRes = await fetch(companiesUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: getAuthorization(), // Your function for auth header
+      },
+    });
 
-          const applications = await appRes.json();
-          const companies = await compRes.json();
+    if (!compRes.ok) {
+      throw new Error("Failed to fetch company data");
+    }
 
-          const appMap = {};
-          applications.forEach((a) => {
-            appMap[a.applicationId] = a;
-          });
+    const company = await compRes.json();
+    tbody.innerHTML = "";
 
-          tbody.innerHTML = "";
+    if (!company.jobs || company.jobs.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-muted">
+            No jobs or applications found for this company.
+          </td>
+        </tr>
+      `;
+      return;
+    }
 
-          companies.forEach((company) => {
-            (company.jobs || []).forEach((job) => {
-              const jobApplications = job.applications || [];
-              jobApplications.forEach((jobApp, index) => {
-                const detailedApp = appMap[jobApp.applicationId];
+    company.jobs.forEach((job) => {
+      const jobApplications = job.applications || [];
+      if (jobApplications.length === 0) return;
 
-                if (!detailedApp) return; // skip if not found
-
-                const tr = document.createElement("tr");
-
-                if (index === 0) {
-                  tr.innerHTML += `
-                    <td rowspan="${jobApplications.length}" class="fw-bold">
-                      ${job.jobTitle}
-                    </td>
-                  `;
-                }
-
-                tr.innerHTML += `
-                  <td>${jobApp.applicationId}</td>
-                  <td>${detailedApp.appliedDate}</td>
-                  <td><span class="badge ${
-                    detailedApp.status === "Applied"
-                      ? "bg-warning text-dark"
-                      : detailedApp.status === "Selected"
-                      ? "bg-success"
-                      : "bg-danger"
-                  }">${detailedApp.status}</span></td>
-                  <td>${company.companyName}</td>
-                  <td>${job.jobLocation}</td>
-                `;
-
-                tbody.appendChild(tr);
-              });
-            });
-          });
-        } catch (error) {
-          console.error("Error loading data:", error);
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="6" class="text-center text-danger">Failed to load data</td>
-            </tr>
+      jobApplications.forEach((jobApp, index) => {
+        const tr = document.createElement("tr");
+        if (index === 0) {
+          tr.innerHTML += `
+            <td rowspan="${jobApplications.length}" class="fw-bold">
+              ${job.jobTitle}
+            </td>
           `;
         }
-      }
+        tr.innerHTML += `
+          <td>${jobApp.applicationId}</td>
+          <td>${jobApp.appliedDate || ""}</td>
+          <td>
+            <span class="badge ${
+              jobApp.status === "Applied"
+                ? "bg-warning text-dark"
+                : jobApp.status === "Selected"
+                ? "bg-success"
+                : "bg-danger"
+            }">${jobApp.status}</span>
+          </td>
+          <td>${company.companyName}</td>
+          <td>${job.jobLocation}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  } catch (error) {
+    console.error("Error loading data:", error);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center text-danger">Failed to load data</td>
+      </tr>
+    `;
+  }
+}
 
-      loadData();
+loadData();
+
     </script>
   </body>
 

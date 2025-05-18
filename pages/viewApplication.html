@@ -23,10 +23,10 @@
 
   <script>
     let applications = [];
-    const baseUrl = "http://localhost:8080/api";
-    const companyId = '2';
+    
+    const companyId = getUserId;
 
-    fetch(`${baseUrl}/companies/${companyId}/applications`,{headers: {"Authorization": `Bearer ${token}`}})
+    fetch(`${baseUrl}/api/companies/${companyId}/applications`,{headers: {"Authorization": getAuthorization()}})
       .then(response => response.json())
       .then(data => {
         applications = data; // <-- Assign fetched data here
@@ -94,7 +94,7 @@
       fetch(`${baseUrl}/application/${applicationId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" ,
-          "Authorization": `Bearer ${token}`
+          "Authorization": getAuthorization()
         },
         body: JSON.stringify(updatedApplication)
       })

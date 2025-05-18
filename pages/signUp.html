@@ -85,11 +85,11 @@
       </div>
     </div>
   </div>
-
+ <script src="../js/script.js"></script>
   <script>
     (
       function(){
-       
+    
 
     const form = document.getElementById("userForm");
     const userTypeSelect = document.getElementById("usertype");
@@ -125,7 +125,7 @@
       fetch(`${baseUrl}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`}
+          }
          ,
         body: JSON.stringify(newUser),
       })
