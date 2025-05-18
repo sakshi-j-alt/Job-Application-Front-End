@@ -75,9 +75,9 @@
 
   <script>
     
-    const userId = getUserId();
+    const userId01 = getUserId();
 
-    let companyId = null;
+    let companyId01 = null;
       const jobsTableBody = document.querySelector("table tbody");
       const form = document.getElementById("jobForm");
       const deadlineDateInput = document.getElementById("deadlineDate");
@@ -94,8 +94,8 @@
       }
 
       function loadJobs() {
-        if (!companyId) return;
-        fetch(`${baseUrl}/api/jobs/company/${companyId}`, {
+        if (!companyId01) return;
+        fetch(`${baseUrl}/api/jobs/company/${companyId01}`, {
           headers: { "Authorization": getAuthorization() }
         })
           .then((res) => {
@@ -147,7 +147,7 @@
         e.preventDefault();
         console.log("I am inside Submit");
         
-        if (!companyId) {
+        if (!companyId01) {
           alert("Company not loaded yet. Please try again.");
           return;
         }
@@ -155,7 +155,7 @@
         const postingDate = new Date().toISOString().split("T")[0];
 
         const data = {
-          company: { companyId: companyId }, // Important: send as nested object for your Job entity
+          company: { companyId: companyId01 }, // Important: send as nested object for your Job entity
           jobTitle: form.jobRole.value,
           salary: parseFloat(form.salary.value),
           description: form.jd.value,
@@ -202,7 +202,7 @@
       });
 
       // --- Fetch company for logged-in user and then load jobs ---
-      fetch(`${baseUrl}/api/companies/user/${userId}`, {
+      fetch(`${baseUrl}/api/companies/user/${userId01}`, {
         headers: { "Authorization": getAuthorization() }
       })
         .then(res => {
@@ -214,7 +214,7 @@
             alert("No company found for this user.");
             return;
           }
-          companyId = company.companyId;
+          companyId01 = company.companyId;
           loadJobs();
         })
         .catch(err => {
@@ -224,4 +224,4 @@
   
   </script>
 </body>
-</html>\
+</html>
