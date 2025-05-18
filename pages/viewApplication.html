@@ -15,9 +15,9 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Candidate</th>
+            <th>Candidate ID</th>
+            <th>Job ID</th>
             <th>Job Title</th>
-            <th>Applied Date</th>
             <th>Status</th>
             <th>Update</th>
           </tr>
@@ -29,82 +29,107 @@
     </div>
 
     <script>
-      const companyId = 1; // Change this based on logged-in company
-      const apiBase = "http://localhost:8080/api/application";
+      (function () {
+        const apiBase = "http://localhost:8080/api/application"; // Adjust path as per your actual API route
 
-      async function fetchApplications() {
-        const res = await fetch(`${apiBase}/company/${companyId}`);
-        const data = await res.json();
-        populateTable(data);
-      }
+        async function fetchApplications() {
+          try {
+            const res = await fetch(`${apiBase}/applicationInfo`);
+            const data = await res.json();
+            console.log(data);
+            populateTable(data);
+          } catch (error) {
+            alert("Failed to load applications.");
+            console.error(error);
+          }
+        }
 
-      function populateTable(applications) {
-        const tbody = document.getElementById("tableBody");
-        tbody.innerHTML = "";
+        function populateTable(applications) {
+          const tbody = document.getElementById("tableBody");
+          tbody.innerHTML = "";
 
-        applications.forEach((app) => {
-          const row = document.createElement("tr");
+          applications.forEach((app) => {
+            const row = document.createElement("tr");
 
-          row.innerHTML = `
+            row.innerHTML = `
           <td>${app.applicationId}</td>
-          <td>${app.user.userName}</td>
-          <td>${app.job.jobTitle}</td>
-          <td>${app.appliedDate}</td>
+          <td>${app.userId}</td>
+          <td>${app.jobId}</td>
+          <td>${app.jobTitle}</td>
           <td>
             <select class="form-select" id="status-${app.applicationId}">
               <option value="Pending" ${
-                app.status === "Pending" ? "selected" : ""
+                app.status === "Applied" ? "selected" : ""
               }>Pending</option>
-              <option value="Accepted" ${
-                app.status === "Accepted" ? "selected" : ""
-              }>Accepted</option>
+              <option value="Shortlisted" ${
+                app.status === "Shortlisted" ? "selected" : ""
+              }>Shortlisted</option>
               <option value="Rejected" ${
                 app.status === "Rejected" ? "selected" : ""
               }>Rejected</option>
+              <option value="Offered" ${
+                app.status === "Offered" ? "selected" : ""
+              }>Offered</option>
             </select>
           </td>
           <td>
             <button class="btn btn-primary btn-sm" onclick="updateStatus(${
               app.applicationId
-            })">Update</button>
+            }, ${app.userId}, ${app.jobId})">
+              Update
+            </button>
           </td>
         `;
 
-          tbody.appendChild(row);
-        });
-      }
+            tbody.appendChild(row);
+          });
+        }
 
-      async function updateStatus(applicationId) {
-        const status = document.getElementById(`status-${applicationId}`).value;
+        window.updateStatus = async function (
+          applicationId,
+          userId,
+          jobId,
+          appliedDate
+        ) {
+          const newStatus = document.getElementById(
+            `status-${applicationId}`
+          ).value;
+          console.log(newStatus);
+          console.log(userId);
+          console.log(jobId);
+          console.log(appliedDate);
+          let userData = await fetch(
+            `http://localhost:8080/api/users/${userId}`
+          ).then((res) => res.json());
+          let jobData = await fetch(
+            `http://localhost:8080/api/jobs/${jobId}`
+          ).then((res) => res.json());
+          console.log(userData);
+          const updatedApp = {
+            applicationId: applicationId,
+            user: userData,
+            job: jobData,
+            status: newStatus,
+          };
 
-        // Fetch existing application for full PUT
-        const res = await fetch(`${apiBase}/${applicationId}`);
-        const existingApp = await res.json();
+          console.log(updatedApp);
+          const res = await fetch(`${apiBase}/${applicationId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedApp),
+          });
 
-        const updatedApp = {
-          applicationId: existingApp.applicationId,
-          userId: existingApp.user.userId,
-          jobId: existingApp.job.jobId,
-          appliedDate: existingApp.appliedDate,
-          status: status, // Use the selected new status here
+          if (res.ok) {
+            alert("Status updated successfully!");
+            fetchApplications();
+          } else {
+            alert("Error updating application.");
+          }
         };
 
-        const updateRes = await fetch(`${apiBase}/${applicationId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedApp),
-        });
-
-        if (updateRes.ok) {
-          alert("Status updated successfully!");
-          fetchApplications();
-        } else {
-          alert("Error updating application.");
-        }
-      }
-
-      // Initial fetch
-      fetchApplications();
+        // Load applications on page load
+        fetchApplications();
+      })();
     </script>
   </body>
 </html>

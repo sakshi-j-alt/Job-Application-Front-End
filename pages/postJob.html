@@ -1,4 +1,3 @@
-
 <body>
   <div class="container py-5">
     <div class="mx-auto form-container" style="max-width: 600px">
@@ -76,9 +75,6 @@
 
   <script>
     
-
-    
-    const token = localStorage.getItem("token");
     const userId = getUserId();
 
     let companyId = null;
@@ -100,7 +96,7 @@
       function loadJobs() {
         if (!companyId) return;
         fetch(`${baseUrl}/api/jobs/company/${companyId}`, {
-          headers: { "Authorization": `Bearer ${token}` }
+          headers: { "Authorization": getAuthorization() }
         })
           .then((res) => {
             if (!res.ok) {
@@ -172,7 +168,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Authorization": getAuthorization()
           },
           body: JSON.stringify(data),
         })
@@ -198,7 +194,7 @@
           if (confirm("Delete this job?")) {
             fetch(`${baseUrl}/api/jobs/${id}`, {
               method: "DELETE",
-              headers: { "Authorization": `Bearer ${token}` }
+              headers: { "Authorization": getAuthorization()}
             }).then(() => loadJobs());
           }
         }
@@ -207,7 +203,7 @@
 
       // --- Fetch company for logged-in user and then load jobs ---
       fetch(`${baseUrl}/api/companies/user/${userId}`, {
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { "Authorization": getAuthorization() }
       })
         .then(res => {
           if (!res.ok) throw new Error("Failed to load company for user.");
@@ -228,4 +224,4 @@
   
   </script>
 </body>
-</html>
+</html>\
