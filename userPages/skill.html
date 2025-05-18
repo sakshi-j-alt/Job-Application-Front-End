@@ -1,10 +1,16 @@
-
-    <link href="../css/bootstrap.min.css" rel="stylesheet" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
-      rel="stylesheet"
-    />
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Skill Management</title>
+  <link href="../css/bootstrap.min.css" rel="stylesheet" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <div class="container mt-4">
     <h2 class="mb-4">Skill Management</h2>
 
     <div class="mb-4">
@@ -31,114 +37,119 @@
           <th style="cursor: pointer">
             Skill Name <i class="bi bi-arrow-down-up"></i>
           </th>
-          <th>Actions</th>
+          
         </tr>
       </thead>
       <tbody id="skillTableBody"></tbody>
     </table>
+  </div>
 
-    <script>
-      
-      const userId = getUserId();
-      // const userId = 2;
+  <script>
+    
 
-      const searchInput = document.getElementById("searchInput");
-      const skillTableBody = document.getElementById("skillTableBody");
-      const selectSkill = document.getElementById("selectSkill");
+    const userId = getUserId();
 
-      let allSkills = [];
-      let sortDirection = 1;
+    const searchInput = document.getElementById("searchInput");
+    const skillTableBody = document.getElementById("skillTableBody");
+    const selectSkill = document.getElementById("selectSkill");
 
-      function fetchSkills() {
-        fetch(`${baseUrl}/api/skills`, {
-          headers: { "Content-Type": "application/json",
-            "Authorization": getAuthorization()
-           },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            allSkills = data;
-            renderSkills(data);
-            populateSkillDropdown(data);
-          });
-      }
+    let allSkills = [];
+    let userSkills = [];
+    let sortDirection = 1;
 
-      function populateSkillDropdown(data) {
-        selectSkill.innerHTML = '<option value="">-- Select Skill --</option>';
-        data.forEach((skill) => {
-          selectSkill.innerHTML += `<option value="${skill.skillId}">${skill.skillName}</option>`;
-        });
-      }
-
-      function renderSkills(skills) {
-        skillTableBody.innerHTML = "";
-        skills.forEach((skill) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${skill.skillId}</td>
-            <td>${skill.skillName}</td>
-            <td>
-              <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${skill.skillId}">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
-          `;
-          skillTableBody.appendChild(row);
+    function fetchSkills() {
+      // Fetch all skills
+      fetch(`${baseUrl}/api/skills`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": getAuthorization()
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          allSkills = data;
+          populateSkillDropdown(data);
         });
 
-        document.querySelectorAll(".delete-btn").forEach((btn) => {
-          btn.addEventListener("click", () => deleteSkill(btn.dataset.id));
-        });
-      }
-
-      function deleteSkill(id) {
-        if (confirm("Are you sure you want to delete this skill?")) {
-          fetch(`${baseUrl}/api/skills/${id}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" ,
-              "Authorization": getAuthorization()
-            },
-          }).then(fetchSkills);
+      // Fetch user's skills
+      fetch(`${baseUrl}/api/users/${userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": getAuthorization()
         }
-      }
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          userSkills = data.skills;
+          renderSkills(userSkills);
+        });
+    }
 
-      searchInput.addEventListener("input", () => {
-        const searchTerm = searchInput.value.toLowerCase();
-        const filtered = allSkills.filter((s) =>
-          s.skillName.toLowerCase().includes(searchTerm)
-        );
-        renderSkills(filtered);
+    function populateSkillDropdown(data) {
+      selectSkill.innerHTML = '<option value="">-- Select Skill --</option>';
+      data.forEach((skill) => {
+        selectSkill.innerHTML += `<option value="${skill.skillId}">${skill.skillName}</option>`;
+      });
+    }
+
+    function renderSkills(skills) {
+      skillTableBody.innerHTML = "";
+      skills.forEach((skill) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${skill.skillId}</td>
+          <td>${skill.skillName}</td>
+         
+        `;
+        skillTableBody.appendChild(row);
       });
 
-      document
-        .querySelector("th:nth-child(2)")
-        .addEventListener("click", () => {
-          const sorted = [...allSkills].sort(
-            (a, b) => a.skillName.localeCompare(b.skillName) * sortDirection
-          );
-          sortDirection *= -1;
-          renderSkills(sorted);
-        });
+      document.querySelectorAll(".delete-btn").forEach((btn) => {
+        btn.addEventListener("click", () => deleteSkill(btn.dataset.id));
+      });
+    }
 
-      function addSkillToUser() {
-        const skillId = selectSkill.value;
-        if (!skillId) return alert("Please select a skill");
+   
 
-        fetch(`${baseUrl}/api/users/${userId}/addSkill`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json",
-            "Authorization":getAuthorization()
-           },
-          body: JSON.stringify({ skillId: Number(skillId) }),
+    searchInput.addEventListener("input", () => {
+      const searchTerm = searchInput.value.toLowerCase();
+      const filtered = allSkills.filter((s) =>
+        s.skillName.toLowerCase().includes(searchTerm)
+      );
+      renderSkills(filtered);
+    });
+
+    document
+      .querySelector("th:nth-child(2)")
+      .addEventListener("click", () => {
+        const sorted = [...allSkills].sort(
+          (a, b) => a.skillName.localeCompare(b.skillName) * sortDirection
+        );
+        sortDirection *= -1;
+        renderSkills(sorted);
+      });
+
+    function addSkillToUser() {
+      const skillId = selectSkill.value;
+      if (!skillId) return alert("Please select a skill");
+
+      fetch(`${baseUrl}/api/users/${userId}/addSkill`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": getAuthorization()
+        },
+        body: JSON.stringify({ skillId: Number(skillId) }),
+      })
+        .then((res) => res.text())
+        .then((msg) => {
+          fetchSkills();
         })
-          .then((res) => res.text())
-          .then((msg) => {
-            alert(msg);
-          })
-          .catch((err) => console.error("Error:", err));
-      }
+        .catch((err) => console.error("Error:", err));
+    }
 
-      // Initial load
-      fetchSkills();
-    </script>
-
+    // Initial load
+    fetchSkills();
+  </script>
+</body>
+</html>
