@@ -73,8 +73,7 @@
 
 <script>
 (() => {
-  const apiUrl = "http://localhost:8080/api/users";
-  const userId = '1';
+  const userId = getUserId();
 
   const form = document.getElementById("profileForm");
 
@@ -89,7 +88,7 @@
   const passwordInput = document.getElementById("Password");
 
   function loadUserProfile() {
-    fetch(`${apiUrl}/${userId}`,{headers: {"Authorization": `Bearer ${token}`}})
+    fetch(`${baseUrl}/api/users/${userId}`,{headers: {"Authorization": getAuthorization()}})
       .then(res => {
         if (!res.ok) throw new Error("Network response was not ok");
         return res.json();
@@ -128,11 +127,11 @@
       updatedUser.password = newPassword;
     }
 
-    fetch(`${apiUrl}/${userId}`, {
+    fetch(`${baseUrl}/api/users/${userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-       "Authorization": `Bearer ${token}`
+       "Authorization":getAuthorization()
       },
       body: JSON.stringify(updatedUser)
     })
@@ -151,7 +150,7 @@
   const experienceContainer = document.getElementById("experienceList");
   experienceContainer.innerHTML = "";
 
-  fetch(`http://localhost:8080/api/experiences?userId=${userId}`)
+  fetch(`http://localhost:8080/api/experiences?userId=${userId}`, {headers:{"Authorization": getAuthorization()}})
     .then(res => {
       if (!res.ok) throw new Error("Failed to fetch experiences");
       return res.json();

@@ -90,13 +90,7 @@
 
 <script>
 (() => {
-  const baseUrl = "http://localhost:8080/api";
-  const userId = sessionStorage.getItem("userId") || "1";
-
-  function getAuthorization() {
-    const token = localStorage.getItem("token");
-    return token ? `Bearer ${token}` : "";
-  }
+ 
 
   // Load User Profile Info
   fetch(`${baseUrl}/users/${userId}`, {
@@ -165,7 +159,11 @@
   const experienceContainer = document.getElementById("experienceList");
   experienceContainer.innerHTML = "";
 
-  fetch(`http://localhost:8080/api/experiences?userId=${userId}`)
+  fetch(`http://localhost:8080/api/experiences?userId=${userId}`,  {
+    headers: {
+      "Authorization": getAuthorization()
+    }
+  })
     .then(res => {
       if (!res.ok) throw new Error("Failed to fetch experiences");
       return res.json();

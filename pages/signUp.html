@@ -124,8 +124,7 @@
 
       fetch(`${baseUrl}/auth/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`}
+        headers: { "Content-Type": "application/json",}
          ,
         body: JSON.stringify(newUser),
       })

@@ -54,12 +54,11 @@
   <script>
     (
       function(){
-        const baseUrl = "http://localhost:8080";
     const userId = getUserId(); // Replace with actual logged-in user id
         console.log(userId)
     async function loadApplications() {
       try {
-        const res = await fetch(`${baseUrl}/api/application/viewDto/${userId}`, {headers: {"Authorization": `Bearer ${token}`}});
+        const res = await fetch(`${baseUrl}/api/application/viewDto/${userId}`, {headers: {"Authorization": getAuthorization()}});
         const applications = await res.json();
         console.log(applications)
         renderApplicationsTable(applications);
@@ -119,7 +118,7 @@
     async function showJobDetails(jobId,companyName) {
       if (!jobId) return;
       try {
-        const res = await fetch(`${baseUrl}/api/jobs/${jobId}`,{headers: {"Authorization": `Bearer ${token}`}});
+        const res = await fetch(`${baseUrl}/api/jobs/${jobId}`,{headers: {"Authorization":getAuthorization()}});
         if (!res.ok) throw new Error("Job not found");
         const job = await res.json();
        // console.log(job)

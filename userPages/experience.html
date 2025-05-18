@@ -67,7 +67,7 @@
         const userId=getUserId();
      
       async function getExperiences() {
-        const res = await fetch(`${baseUrl}/api/experiences/${userId}`,{headers: {"Authorization": `Bearer ${token}`}});
+        const res = await fetch(`${baseUrl}/api/experiences/${userId}`,{headers: {"Authorization": getAuthorization()}});
         const experiences = await res.json();
 
         const container = document.getElementById("experienceList");
@@ -103,7 +103,7 @@
           return;
         await fetch(`${baseUrl}/api/experiences/delete/experience/${id}`, {
           method: "DELETE",
-          headers: {"Authorization": `Bearer ${token}`}
+          headers: {"Authorization": getAuthorization()}
         });
         getExperiences();
       }
@@ -117,7 +117,7 @@
           return;
         await fetch(`${baseUrl}/api/experiences/delete/${userId}`, {
           method: "DELETE",
-          headers: {"Authorization": `Bearer ${token}`}
+          headers: {"Authorization": getAuthorization()}
         });
         getExperiences();
       }
@@ -146,7 +146,7 @@
             await fetch(apiBase, {
               method: "POST",
               headers: { "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": getAuthorization()
                },
               body: JSON.stringify(data),
             });
@@ -176,7 +176,7 @@
         await fetch(`${baseUrl}/api/experiences/${id}/update/${userId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Authorization":getAuthorization()
            },
           body: JSON.stringify(data),
         });

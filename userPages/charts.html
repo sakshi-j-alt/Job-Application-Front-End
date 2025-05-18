@@ -11,10 +11,10 @@
     <h2>Applications by Location</h2>
     <canvas id="locationChart" height="120"></canvas>
   </div>
-  <div class="chart-container">
+  <!-- <div class="chart-container">
     <h2>Jobs by Industry</h2>
     <canvas id="industryChart" height="120"></canvas>
-  </div>
+  </div> -->
   <div class="chart-container">
     <h2>Applications by Job Role</h2>
     <canvas id="roleChart" height="120"></canvas>
@@ -23,12 +23,11 @@
   <script>
     
 async function renderCharts() {
-  const token = localStorage.getItem("token");
   const userId = getUserId(); // This uses your decodeJWT helper
 
   // Helper to fetch with token
   async function fetchChartData(url) {
-    const options = token ? { headers: { "Authorization": `Bearer ${token}` } } : {};
+    const options = { headers: { "Authorization": getAuthorization() } } ;
     const res = await fetch(url, options);
     if (!res.ok) throw new Error('HTTP error ' + res.status);
     return res.json();
@@ -40,9 +39,9 @@ async function renderCharts() {
       industryData,
       roleData
     ] = await Promise.all([
-      fetchChartData(`${baseUrl}/charts/applications-by-location/${userId}`),
-      fetchChartData(`${baseUrl}/charts/jobs-by-company-domain/${userId}`),
-      fetchChartData(`${baseUrl}/charts/applications-by-job-title/${userId}`)
+      fetchChartData(`${baseUrl}/charts/applications-by-location/${userId}`, { headers: { "Authorization": getAuthorization() } }),
+      fetchChartData(`${baseUrl}/charts/jobs-by-company-domain/${userId}`, { headers: { "Authorization": getAuthorization() } }),
+      fetchChartData(`${baseUrl}/charts/applications-by-job-title/${userId}`, { headers: { "Authorization": getAuthorization() } })
     ]);
 
         // Prepare data for charts
@@ -92,35 +91,37 @@ async function renderCharts() {
           },
         });
 
-        // Chart 2: Jobs by Industry (Doughnut)
-        new Chart(document.getElementById("industryChart"), {
-          type: "doughnut",
-          data: {
-            labels: industryLabels,
-            datasets: [{
-              label: "Jobs",
-              data: industryCounts,
-              backgroundColor: palette.slice(0, industryLabels.length),
-              borderWidth: 2,
-              hoverOffset: 10,
-            }],
-          },
-          options: {
-            responsive: true,
-            animation: { animateRotate: true, duration: 1400 },
-            plugins: {
-              legend: {
-                position: "bottom",
-                labels: { color: "#444", font: { weight: "bold" } },
-              },
-              tooltip: {
-                callbacks: {
-                  label: (context) => ` ${context.label}: ${context.parsed} Jobs`,
-                },
-              },
-            },
-          },
-        });
+        // // Chart 2: Jobs by Industry (Doughnut)
+        // console.log("Industry Counts : " , industryCounts);
+        
+        // new Chart(document.getElementById("industryChart"), {
+        //   type: "doughnut",
+        //   data: {
+        //     labels: industryLabels,
+        //     datasets: [{
+        //       label: "Jobs",
+        //       data: industryCounts,
+        //       backgroundColor: palette.slice(0, industryLabels.length),
+        //       borderWidth: 2,
+        //       hoverOffset: 10,
+        //     }],
+        //   },
+        //   options: {
+        //     responsive: true,
+        //     animation: { animateRotate: true, duration: 1400 },
+        //     plugins: {
+        //       legend: {
+        //         position: "bottom",
+        //         labels: { color: "#444", font: { weight: "bold" } },
+        //       },
+        //       tooltip: {
+        //         callbacks: {
+        //           label: (context) => ` ${context.label}: ${context.parsed} Jobs`,
+        //         },
+        //       },
+        //     },
+        //   },
+        // });
 
         // Chart 3: Applications by Job Role (Bar)
         new Chart(document.getElementById("roleChart"), {

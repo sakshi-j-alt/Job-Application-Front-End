@@ -59,20 +59,21 @@
 </div>
 
 <script>
- 
-let jobsData = [];
+let jobsData01 = [];
 let selectedJobId = null;
-const currentUserId = 2; // <-- Set this as per your auth/session
+const currentUserId = getUserId(); // <-- Set this as per your auth/session
 
-// Fetch jobs from backend and render cards
 async function loadJobs() {
   try {
-    const res = await fetch(`${baseUrl}/api/jobs`, {headers: {"Authorization": `Bearer ${token}`}});
-    jobsData = await res.json();
+    const res = await fetch(`${baseUrl}/api/users/userDto/${currentUserId}`, {headers: {"Authorization": getAuthorization()}});
+    const dashboard = await res.json();
+    jobsData01 = dashboard.jobsToApply || [];
+    console.log("Job Data:", jobsData01);
+    
     // Remove jobs the user has already applied to:
     const appliedJobIds = await getAppliedJobIdsForUser(currentUserId);
-    jobsData = jobsData.filter(job => !appliedJobIds.includes(job.jobId));
-    renderJobCards(jobsData);
+    jobsData01 = jobsData01.filter(job => !appliedJobIds.includes(job.jobId));
+    renderJobCards(jobsData01);
   } catch (err) {
     document.getElementById('jobCardsContainer').innerHTML = `
       <div class="col-12">
@@ -86,7 +87,7 @@ async function loadJobs() {
 // Get job IDs the user has already applied to
 async function getAppliedJobIdsForUser(userId) {
   try {
-    const res = await fetch(`${baseUrl}/api/application`,{headers: {"Authorization": `Bearer ${token}`}});
+    const res = await fetch(`${baseUrl}/api/application`,{headers: {"Authorization": getAuthorization()}});
     const applications = await res.json();
     return applications
       .filter(app => app.user && app.user.userId === userId)
@@ -96,19 +97,19 @@ async function getAppliedJobIdsForUser(userId) {
   }
 }
 
-// Render job cards (unchanged)
 function renderJobCards(jobs) {
   const container = document.getElementById('jobCardsContainer');
   if (!jobs.length) {
     container.innerHTML = `<div class="col-12"><p class="text-muted">No jobs available.</p></div>`;
     return;
   }
+  
   container.innerHTML = jobs.map(job => `
     <div class="col">
       <div class="card job-card shadow-sm border-light">
         <div class="card-body">
           <h5 class="card-title text-primary">${job.jobTitle}</h5>
-          <h6 class="card-subtitle mb-3 text-muted">${job.company ? job.company.companyName : 'Company'}</h6>
+          <h6 class="card-subtitle mb-3 text-muted">${job.companyName}</h6>
           <ul class="list-group list-group-flush mb-3">
             <li class="list-group-item border-0 ps-0">
               <i class="fas fa-money-bill-wave me-2 text-muted"></i>
@@ -130,11 +131,11 @@ function renderJobCards(jobs) {
 
 // Modal logic
 function openJobModal(jobId) {
-  const job = jobsData.find(j => j.jobId === jobId);
+  const job = jobsData01.find(j => j.jobId === jobId);
   if (!job) return;
   selectedJobId = jobId;
   document.getElementById("modalJobTitle").textContent = job.jobTitle;
-  document.getElementById("modalCompany").textContent = job.company ? job.company.companyName : '';
+  document.getElementById("modalCompany").textContent = job.companyName;
   document.getElementById("modalSalary").textContent = job.salary ? '₹' + job.salary.toLocaleString() : '';
   document.getElementById("modalLocation").textContent = job.jobLocation || '';
   document.getElementById("modalPostingDate").textContent = job.postingDate || '';
@@ -158,10 +159,9 @@ function closeModal(event) {
 
 // Apply to Job
 async function applyToJob(jobId) {
-  const job = jobsData.find(j => j.jobId === jobId);
+  const job = jobsData01.find(j => j.jobId === jobId);
   if (!job) return;
 
-  // Build minimal user and job objects for backend
   const application = {
     appliedDate: new Date().toISOString().split('T')[0],
     status: "Applied",
@@ -172,15 +172,12 @@ async function applyToJob(jobId) {
   try {
     const res = await fetch(`${baseUrl}/api/application`, {
       method: "POST",
-      headers: { "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-       },
+      headers: { "Content-Type": "application/json", "Authorization": getAuthorization() },
       body: JSON.stringify(application)
     });
     if (!res.ok) throw new Error("Failed to apply for job");
-    // Remove the job from jobsData and re-render
-    jobsData = jobsData.filter(j => j.jobId !== jobId);
-    renderJobCards(jobsData);
+    jobsData01 = jobsData01.filter(j => j.jobId !== jobId);
+    renderJobCards(jobsData01);
     closeModal({ target: { classList: { contains: () => true } } }); // Close modal
     alert("Application submitted successfully!");
   } catch (err) {
@@ -189,8 +186,9 @@ async function applyToJob(jobId) {
   }
 }
 
+
+
 // Initial load
 loadJobs();
-
-
 </script>
+
