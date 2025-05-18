@@ -41,7 +41,7 @@
   <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-      <a class="navbar-brand" href="#">404</a>
+      <a class="navbar-brand" id="company-name" href="#">Company</a>
       <div class="ms-auto dropdown">
         <a
           class="nav-link dropdown-toggle text-white"
@@ -118,24 +118,15 @@
                   Job Wise Applications
                 </a>
               </li>
-              <li>
+              <!-- <li>
                 <a
                   class="dropdown-item"
                   href="#"
                   onclick="loadPage('top5JobsByDomain.html')"
                 >
-                  Top 5 Jobs by Domain
+                  Top 5 Jobs by Salary
                 </a>
-              </li>
-              <li>
-                <a
-                  class="dropdown-item"
-                  href="#"
-                  onclick="loadPage('userQualification.html')"
-                >
-                  user Qualification
-                </a>
-              </li>
+              </li> -->
             </ul>
           </li>
         </ul>
@@ -216,118 +207,122 @@
     ></script>
 
     <script>
-      fetch(`${baseUrl}/api/applications/count`, {headers: {"Authorization": getAuthorization()}})
-        .then((res) => res.json())
-        .then((data) => {
+
+      const userId = getUserId();
+
+      let companyId = null;
+
+      async function loadCompanyProfile() {
+        try {
+          const userRes = await fetch(`${baseUrl}/api/users/${userId}`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: getAuthorization(),
+            },
+          });
+
+          if (!userRes.ok) throw new Error("User fetch failed");
+
+          const user = await userRes.json();
+
+          const res = await fetch(`${baseUrl}/api/companies/user/${userId}`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: getAuthorization(),
+            },
+          });
+
+          const company = await res.json();
+
+          if (!company || !company.companyId) {
+            throw new Error("No valid company found!");
+          }
+
+          companyId = company.companyId;
+          document.getElementById("company-name").textContent =
+            company.companyName;
+
+          console.log("Company ID:", companyId);
+
+          loadDashboardData();
+        } catch (e) {
+          console.error("Error:", e);
+
           document.getElementById("applications-count").textContent =
-            data.count;
-        })
-        .catch(() => {
-          document.getElementById("applications-count").textContent = "Error";
-        });
+            "Not found";
+        }
+      }
 
-      // Fetch jobs posted count
-      fetch(`${baseUrl}/api/jobs/count`,{headers: {"Authorization": getAuthorization()}})
-        .then((res) => res.json())
-        .then((data) => {
-          document.getElementById("jobs-count").textContent = data.count;
-        })
-        .catch(() => {
-          document.getElementById("jobs-count").textContent = "Error";
-        });
 
-      // Fetch male/female count
-      fetch(`${baseUrl}/api/applicants/gender-count`, {headers: {"Authorization":getAuthorization()}})
-        .then((res) => res.json())
-        .then((data) => {
-          document.getElementById(
-            "gender-count"
-          ).textContent = `Male: ${data.male}, Female: ${data.female}`;
+      function loadDashboardData() {
+        fetch(`${baseUrl}/api/companies/${companyId}/companyDashBoard`, {
+          headers: { Authorization: getAuthorization() },
         })
-        .catch(() => {
-          document.getElementById("gender-count").textContent = "Error";
-        });
-      // Chart 1: Applications per Job
-      fetch(`${baseUrl}/api/charts/applications-per-job`,{headers: {"Authorization": getAuthorization()}})
-        .then((res) => res.json())
-        .then((data) => {
-          // Assume your backend returns: { labels: [...], counts: [...] }
-          const ctx1 = document
-            .getElementById("applicationsJobChart")
-            .getContext("2d");
-          new Chart(ctx1, {
-            type: "bar",
-            data: {
-              labels: data.labels,
-              datasets: [
-                {
-                  label: "Applications",
-                  data: data.counts,
-                  backgroundColor: [
-                    "rgba(54, 162, 235, 0.7)",
-                    "rgba(255, 99, 132, 0.7)",
-                    "rgba(255, 206, 86, 0.7)",
-                    "rgba(75, 192, 192, 0.7)",
-                  ],
-                  borderColor: [
-                    "rgba(54, 162, 235, 1)",
-                    "rgba(255, 99, 132, 1)",
-                    "rgba(255, 206, 86, 1)",
-                    "rgba(75, 192, 192, 1)",
-                  ],
-                  borderWidth: 1,
-                },
-              ],
-            },
-            options: {
-              scales: {
-                y: { beginAtZero: true },
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("applications-count").textContent =
+              data.totalApplications;
+            document.getElementById("jobs-count").textContent = data.totalJobs;
+            document.getElementById(
+              "gender-count"
+            ).textContent = `Male: ${data.maleCount}, Female: ${data.femaleCount}`;
+
+            // Chart 1
+            const ctx1 = document
+              .getElementById("applicationsJobChart")
+              .getContext("2d");
+            new Chart(ctx1, {
+              type: "bar",
+              data: {
+                labels: data.labels,
+                datasets: [
+                  {
+                    label: "Applications",
+                    data: data.applicationsPerJob,
+                    backgroundColor: "rgba(54, 162, 235, 0.7)",
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    borderWidth: 1,
+                  },
+                ],
               },
-            },
-          });
-        });
-
-      // Chart 2: Skill vs Applicants
-      fetch(`${baseUrl}/api/charts/skill-vs-applicants`,{headers: {"Authorization":getAuthorization()}})
-        .then((res) => res.json())
-        .then((data) => {
-          // Assume your backend returns: { labels: [...], counts: [...] }
-          const ctx2 = document
-            .getElementById("skillApplicantsChart")
-            .getContext("2d");
-          new Chart(ctx2, {
-            type: "bar",
-            data: {
-              labels: data.labels,
-              datasets: [
-                {
-                  label: "Applicants",
-                  data: data.counts,
-                  backgroundColor: [
-                    "rgba(255, 99, 132, 0.7)",
-                    "rgba(54, 162, 235, 0.7)",
-                    "rgba(255, 206, 86, 0.7)",
-                    "rgba(75, 192, 192, 0.7)",
-                    "rgba(153, 102, 255, 0.7)",
-                  ],
-                  borderColor: [
-                    "rgba(255, 99, 132, 1)",
-                    "rgba(54, 162, 235, 1)",
-                    "rgba(255, 206, 86, 1)",
-                    "rgba(75, 192, 192, 1)",
-                    "rgba(153, 102, 255, 1)",
-                  ],
-                  borderWidth: 1,
-                },
-              ],
-            },
-            options: {
-              scales: {
-                y: { beginAtZero: true },
+              options: {
+                scales: { y: { beginAtZero: true } },
               },
-            },
+            });
+
+            // Chart 2
+            const ctx2 = document
+              .getElementById("skillApplicantsChart")
+              .getContext("2d");
+            new Chart(ctx2, {
+              type: "bar",
+              data: {
+                labels: data.labels,
+                datasets: [
+                  {
+                    label: "Applicants",
+                    data: data.applicationsPerJob,
+                    backgroundColor: "rgba(255, 99, 132, 0.7)",
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    borderWidth: 1,
+                  },
+                ],
+              },
+              options: {
+                scales: { y: { beginAtZero: true } },
+              },
+            });
+          })
+          .catch((err) => {
+            console.error("Dashboard error:", err);
+            document.getElementById("applications-count").textContent = "Error";
+            document.getElementById("jobs-count").textContent = "Error";
+            document.getElementById("gender-count").textContent = "Error";
           });
-        });
+      }
+
+      // Start everything
+      loadCompanyProfile();
     </script>
   </body>
 </html>
