@@ -40,7 +40,7 @@
         style="height: 120px; background-color: #027bf5"
       >
         <div class="card-body text-white">
-          <h3 class="card-title">Welcome back, User!</h3>
+          <h3 class="card-title">Welcome back, <span id="user_name"></span>!</h3>
           <p class="card-text">
             You have <span id="appliedCount">0</span> applications and
             <span id="urgentPositions">...</span> priority jobs to explore.
@@ -92,8 +92,8 @@
         </div>
       </div>
     </div>
-
     <script>
+      document.getElementById("user_name").innerText = getUserName(); // Replace with the logged-in user name dynamically
       // Global jobsData so viewJob can access it
       let jobsData = [];
 

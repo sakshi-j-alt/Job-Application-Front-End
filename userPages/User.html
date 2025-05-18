@@ -39,7 +39,7 @@
             data-bs-toggle="dropdown"
           >
             <i class="fa fa-user me-2"></i>
-            <span>Admin</span>
+            <span id="user-name">Admin</span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
             <li>
@@ -182,6 +182,7 @@
       window.onload = function () {
         loadPage("../userPages/User-DashBoard.html"); // or your dashboard file name
       };
+      document.getElementById("user-name").innerText = getUserName();
     </script>
   </body>
 </html>

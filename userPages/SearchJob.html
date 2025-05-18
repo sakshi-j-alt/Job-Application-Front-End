@@ -138,8 +138,8 @@ function openJobModal(jobId) {
   document.getElementById("modalCompany").textContent = job.companyName;
   document.getElementById("modalSalary").textContent = job.salary ? '₹' + job.salary.toLocaleString() : '';
   document.getElementById("modalLocation").textContent = job.jobLocation || '';
-  document.getElementById("modalPostingDate").textContent = job.postingDate || '';
-  document.getElementById("modalJobDescription").textContent = job.description || '';
+  document.getElementById("modalPostingDate").textContent = job.postingDate || '2025-01-01';
+  document.getElementById("modalJobDescription").textContent = "Collaborate with cross-functional teams including designers, product managers, and QA engineers to deliver high-quality software solutions.";
 
   // Set up Apply Now button
   const applyBtn = document.querySelector("#jobModal .btn-primary");

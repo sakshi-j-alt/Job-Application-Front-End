@@ -103,7 +103,7 @@ function getUserName() {
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "login.html";
     const decoded = decodeJWT(token);
-    return decoded.sub;
+    return decoded.userName;
 }
 
 function getUserEmail() {

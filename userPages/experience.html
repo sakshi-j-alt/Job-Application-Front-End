@@ -35,7 +35,6 @@
   <div class="py-5">
     <h2 class="mb-4 text-primary">User Experiences</h2>
 
-    <!-- User ID input and buttons -->
     <div class="mb-4">
       <div class="input-group mb-3">
         <button
@@ -44,30 +43,29 @@
         >
           Get Experiences
         </button>
-        <button
+        <!-- <button
           class="btn btn-danger rounded-2 m-3"
           onclick="deleteAllExperiences()"
         >
           Delete All Experiences
-        </button>
+        </button> -->
       </div>
     </div>
 
-    <!-- Experience cards -->
     <div id="experienceList" class="row gy-4"></div>
   </div>
 
-
-  <!-- ✅ Bootstrap Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- ✅ Your main JS logic -->
   <script>
     (() => {
-        const userId=getUserId();
-     
+      const userId = getUserId();
+      const baseUrl = "http://localhost:8080";
+
       async function getExperiences() {
-        const res = await fetch(`${baseUrl}/api/experiences/${userId}`,{headers: {"Authorization": getAuthorization()}});
+        const res = await fetch(`${baseUrl}/api/experiences/${userId}`, {
+          headers: { Authorization: getAuthorization() },
+        });
         const experiences = await res.json();
 
         const container = document.getElementById("experienceList");
@@ -77,23 +75,29 @@
           const col = document.createElement("div");
           col.className = "col-md-6 col-lg-4";
 
+          // Escape values for safety
+          const roleEscaped = exp.role.replace(/'/g, "\\'");
+          const companyEscaped = exp.companyName.replace(/'/g, "\\'");
+          const startEscaped = exp.startDate.replace(/'/g, "\\'");
+          const endEscaped = exp.endDate.replace(/'/g, "\\'");
+
           col.innerHTML = `
-          <div class="card shadow-sm border-primary">
-            <div class="card-body">
-              <h5 class="card-title text-primary">${exp.role}</h5>
-              <h6 class="card-subtitle mb-2 text-muted">${exp.companyName}</h6>
-              <p class="card-text">
-                <strong>From:</strong> ${exp.startDate}<br>
-                <strong>To:</strong> ${exp.endDate}
-              </p>
-              <button class="btn btn-sm btn-warning me-2"
-                onclick="populateUpdateForm(${exp.experienceId}, ${exp.userId}, '${exp.role}', '${exp.companyName}', '${exp.startDate}', '${exp.endDate}')">
-                Edit
-              </button>
-              <button class="btn btn-sm btn-danger" onclick="deleteExperience(${exp.experienceId})">Delete</button>
+            <div class="card shadow-sm border-primary">
+              <div class="card-body">
+                <h5 class="card-title text-primary">${exp.role}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">${exp.companyName}</h6>
+                <p class="card-text">
+                  <strong>From:</strong> ${exp.startDate}<br>
+                  <strong>To:</strong> ${exp.endDate}
+                </p>
+                <button class="btn btn-sm btn-warning me-2"
+                  onclick="populateUpdateForm(${exp.experienceId}, ${exp.userId}, '${roleEscaped}', '${companyEscaped}', '${startEscaped}', '${endEscaped}')">
+                  Edit
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteExperience(${exp.experienceId})">Delete</button>
+              </div>
             </div>
-          </div>
-        `;
+          `;
           container.appendChild(col);
         });
       }
@@ -103,7 +107,7 @@
           return;
         await fetch(`${baseUrl}/api/experiences/delete/experience/${id}`, {
           method: "DELETE",
-          headers: {"Authorization": getAuthorization()}
+          headers: { Authorization: getAuthorization() },
         });
         getExperiences();
       }
@@ -117,9 +121,20 @@
           return;
         await fetch(`${baseUrl}/api/experiences/delete/${userId}`, {
           method: "DELETE",
-          headers: {"Authorization": getAuthorization()}
+          headers: { Authorization: getAuthorization() },
         });
         getExperiences();
+      }
+
+      async function updateExperience(id, userId, data) {
+        await fetch(`${baseUrl}/api/experiences/${id}/update/${userId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: getAuthorization(),
+          },
+          body: JSON.stringify(data),
+        });
       }
 
       document
@@ -128,35 +143,41 @@
           e.preventDefault();
 
           const data = {
-            userId: userId,
-            role: document.getElementById("role").value,
-            companyName: document.getElementById("company").value,
+            user: {
+              userId: userId
+            },
+            role: document.getElementById("role").value.trim(),
+            companyName: document.getElementById("company").value.trim(),
             startDate: document.getElementById("startDate").value,
             endDate: document.getElementById("endDate").value,
           };
 
+
           if (e.target.dataset.updateId) {
-            await updateExperience(
-              e.target.dataset.updateId,
-              data.userId,
-              data
-            );
+            await updateExperience(e.target.dataset.updateId, userId, data);
             delete e.target.dataset.updateId;
           } else {
-            await fetch(apiBase, {
+            const res = await fetch(`${baseUrl}/api/experiences`, {
               method: "POST",
-              headers: { "Content-Type": "application/json",
-                "Authorization": getAuthorization()
-               },
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: getAuthorization(),
+              },
               body: JSON.stringify(data),
             });
+
+            if (!res.ok) {
+              const errorText = await res.text();
+              alert(`Failed to add experience: ${res.status} - ${errorText}`);
+              return;
+            }
           }
 
           e.target.reset();
           getExperiences();
         });
 
-      function populateUpdateForm(
+      window.populateUpdateForm = function (
         id,
         userId,
         role,
@@ -164,23 +185,19 @@
         startDate,
         endDate
       ) {
-        document.getElementById("expUserId").value = userId;
         document.getElementById("role").value = role;
         document.getElementById("company").value = company;
         document.getElementById("startDate").value = startDate;
         document.getElementById("endDate").value = endDate;
         document.getElementById("experienceForm").dataset.updateId = id;
-      }
+      };
 
-      async function updateExperience(id, userId, data) {
-        await fetch(`${baseUrl}/api/experiences/${id}/update/${userId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json",
-            "Authorization":getAuthorization()
-           },
-          body: JSON.stringify(data),
-        });
-      }
+      window.getExperiences = getExperiences;
+      window.deleteExperience = deleteExperience;
+      window.deleteAllExperiences = deleteAllExperiences;
+
+      // Initial load
+      getExperiences();
     })();
   </script>
 </body>
